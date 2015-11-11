@@ -9,11 +9,13 @@ import problems.AProblem;
 public abstract class AMOP{
 	
 	protected static int popSize;
-	protected static int neighbourSize;
 	protected static int objectiveDimesion ;
 	protected static AProblem problem;
 	protected static AMOP instance;
 	
+
+	protected static int hyperplaneIntercept;
+
 	public double[] idealPoint;
 	public List<double[]> weights;
 	public List<int[]> neighbourTable;
@@ -102,7 +104,5 @@ public abstract class AMOP{
 	public static AProblem getProblem() {
 		return problem;
 	}
-	
-	
 	
 }

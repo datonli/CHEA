@@ -16,6 +16,11 @@ public abstract class MoChromosome {
 	protected double fitnessValue;
 	protected static int[][] range;
 
+
+	protected double kValue ;
+	protected static int hyperplaneIntercept;
+
+
 	protected Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException(
 				"Chromosome cannot be cloned directly, it must be created from a pool");
@@ -39,6 +44,11 @@ public abstract class MoChromosome {
 		return Math.sqrt(sum);
 	}
 	
+	public abstract void calKVal(double[] idealPoint,int hyperplaneIntercept);
+	public abstract int[] calVObj(double[] idealPoint,int hyperplaneIntercept);
+	public abstract double[] calNormailize(double[] idealPoint, int hyperplaneIntercept);
+	public abstract int getIndexFromVObj(double[int] vObj, int hyperplaneIntercept);
+
 	public abstract void evaluate(AProblem problem);
 	
 	public abstract void mutate(double mutationrate);

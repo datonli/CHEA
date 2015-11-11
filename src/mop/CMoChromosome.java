@@ -1,7 +1,7 @@
 package mop;
 
 import problems.AProblem;
-//import org.apache.commons.math.random.RandomGenerator;
+//import org.apache.commons.Math.random.RandomGenerator;
 
 public class CMoChromosome extends MoChromosome {
 	
@@ -36,6 +36,132 @@ public class CMoChromosome extends MoChromosome {
 	public void evaluate(AProblem problem){
 		problem.evaluate(genes,objectiveValue);
 	}
+
+	public double[] calNormailize(double[] idealPoint, int hyperplaneIntercept) {
+		double objRelativeSum = 0.0;
+		double[] normailizedf = new double[objectiveDimesion];
+		for( int j = 0; j < objectiveDimesion; j ++) {
+			normailizedf[j] = objectiveValue[j] - idealPoint[j];
+			objRelativeSum += normailizedf[j];
+		} 
+		if(objRelativeSum == 0) {
+			objRelativeSum  = hyperplaneIntercept;
+			normailizedf[0] = hyperplaneIntercept;
+			for ( int j = 1; j < objectiveDimesion; j ++) {
+					normailizedf[j] = 0.0;
+			}
+		} else {
+			for (int j = 0 ; j < objectiveDimesion; j ++) {
+				normailizedf[j] = normailizedf[j] / objRelativeSum * hyperplaneIntercept;
+			}
+		}
+		kValue = objRelativeSum;
+		return normailizedf;
+	}
+
+	public void calMoChObjValue(double[] idealPoint, int hyperplaneIntercept) {
+		objectiveValue = calVObj(idealPoint,hyperplaneIntercept);
+	}
+
+	public double[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
+		double[] vValue = new double[objectiveDimesion];
+		double[] normailizedf = calNormailize(idealPoint,hyperplaneIntercept);
+		boolean[] isCompleteBit = new boolean[objectiveDimesion];
+		for ( int j = 0 ;j < objectiveDimesion; j ++) isCompleteBit[j] = false;
+		int size = objectiveDimesion;
+		int minIndex = 0;
+		double minValue = 1e7;
+		double[] lowDif = new double[objectiveDimesion];
+		double[] upDif = new double[objectiveDimesion];
+		double fix;
+		double selectData;
+		for (int i = 0; i < objectiveDimesion; i ++) {
+			lowDif[i] = (double)Math.floor(normailizedf[i]) - normailizedf[i];
+			upDif[i] = 1.0 + lowDif[i];
+			selectData = (-lowDif[i]) < upDif[i] ? -lowDif[i] : upDif[i];
+			if ( minValue > selectData) {
+				minIndex = i;
+				minValue = selectData;
+			}
+		}
+
+		while(true) {
+			selectData = (( -lowDif[minIndex] ) < upDif[minIndex] ? lowDif[minIndex] : upDif[minIndex]);
+			vValue[minIndex] = selectData < 0 ? Math.floor(normailizedf[minIndex]) : Math.ceil( normailizedf[minIndex]);
+			isCompleteBit[minIndex] = true;
+			size --;
+
+			if( size == 1) {
+				int sum = 0 ;
+				int leftIndex = 0 ;
+				for (int i = 0; i < objectiveDimesion; i ++) {
+					if (isCompleteBit[i]) sum += vValue[i];
+					else leftIndex = i;
+				}
+				vValue[leftIndex] = hyperplaneIntercept - sum;
+				break;
+			}
+			fix = selectData / size;
+			minValue = 1e7;
+			for(int i = 0 ; i < objectiveDimesion; i ++) {
+				if (isCompleteBit[i] ) continue;
+				lowDif[i] += fix;
+				upDif[i] += fix;
+				selectData = ( -lowDif[i] ) < upDif[i] ? -lowDif[i] : upDif[i];
+				if ( minValue > selectData ) {
+					minIndex = i;
+					minValue = selectData;
+				}
+			}
+		}
+		for(int i = 0; i < objectiveDimesion; i ++) {
+			isCompleteBit = false;
+			lowDif[i] = 0;
+			upDif[i] = 0;
+			normailizedf[i] = 0;
+		}
+		return vValue;
+	}
+
+	public void calKVal(double[] idealPoint,int hyperplaneIntercept) {
+		kValue = 0.0;
+		for (int j = 0 ; j < objRelativeSum; j ++) 
+				kValue += ( objectiveValue[j] - idealPoint[j]);
+		if (0 == kValue) kValue = hyperplaneIntercept;
+	}
+
+	public int getIndexFromVObj(int[] vObj, int hyperplaneIntercept) {
+		if ( 2 == objectiveDimesion ) return vObj[0] ;
+		else if ( 3 == objectiveDimesion ) return (hyperplaneIntercept - vObj[2] + 1) *  (hyperplaneIntercept - vObj[2] ) / 2 + vObj[0];
+		int[] h = new int[objectiveDimesion-1];
+		h[0] = hyperplaneIntercept - vObj[objectiveDimesion-1];
+		for (int i = 1; i < objectiveDimesion -1; i ++) {
+			h[i] = h[i-1] - vObj[objectiveDimesion-1-i];
+		}
+		int resultIndex = 0;
+		for (int i = 0 ; i < objectiveDimesion - 1 ; i ++) {
+			resultIndex += choose(h[i] + objectiveDimesion -2 -i , objectiveDimesion - 1 -i);
+		}
+		for(int i = 0 ; i < objectiveDimesion -1 ; i ++) h = 0;
+		return resultIndex;
+	}
+
+	int choose(int n,int m) {
+		if (m > n) return 0;
+		return (int) Math.floor(0.5 + Math.exp(lnchoose(n,m)));
+	}
+
+	int lnchoose(int n, int m) {
+		if (m > n) return 0;
+		if (m < n/2.0) m = n - m;
+		double s1 =  0;
+		for( int i = m + 1; i <= n; i ++) s1 += Math.log((double)i);
+		double s2 = 0; 
+		int ub = n - m;
+		for (int i = 2; i <= ub; i ++) s1 += Math.log((double)i);
+		return s1-s2;
+	}
+
 	
 	@Override
 	public void diff_xover(MoChromosome ind0, MoChromosome ind1,

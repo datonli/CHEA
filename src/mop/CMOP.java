@@ -15,13 +15,15 @@ public class CMOP extends AMOP {
 	private final double F = 0.5;
 	private final double CR = 1;
 	
-	private CMOP(int popSize,int neighbourSize,AProblem problem){
+	private CMOP(int popSize,AProblem problem,int hyperplaneIntercept,int neighbourNum){
 		this.popSize = popSize;
-		this.neighbourSize = neighbourSize;
+		this.neighbourNum = neighbourNum;
+		this.hyperplaneIntercept = hyperplaneIntercept;
 		this.objectiveDimesion = AProblem.objectiveDimesion;
 		this.problem = problem;
 		allocateAll();
 	}
+
 	
 	public static AMOP getInstance(int popSize,int neighbourSize,AProblem problem){
 		if(null == instance)
@@ -41,10 +43,14 @@ public class CMOP extends AMOP {
 		for(int i = 0; i < objectiveDimesion; i ++)
 			idealPoint[i] = 1.0e+30;
 		
-		initWeight();
-		initNeighbour();
 		generateInitialPop();
+		initNeighbour(neighbourSize);
+
+
 		evaluateAfterInitial();
+
+		// need to put the part of calculate the IGD  Nov 11
+		// especially add after evalute the objectiveValue because IGD calculation need this data !
 	}
 
 
@@ -55,10 +61,29 @@ public class CMOP extends AMOP {
 		
 	}
 
+	private double calcIGD() {
+		double distanceIGD = 0.0;
+		for (int i  = 0 ; i < realMop.size(); i ++) {
+			double minDistance = 1.0e+10;
+			for (int j = 0 ; j < popSize; j ++) {
+				double d = distance(realMop.chromosomes.get(i).objectiveValue,chromosomes.get(i).objectiveValue);
+				if(d < minDistance) minDistance = d;
+			}
+			distanceIGD += minDistance;
+		}
+		distanceIGD /= popSize;
+		return distanceIGD;
+	}
 
-	private void initNeighbour() {
+	
+	// initial the neighbour point for neighbour's subproblems. Nov 11.
+	private void initNeighbour(int neighbourNum) {
+
+		
+
 		//neighbourTable = new ArrayList<int[]>(popSize);
 
+/*
 		double[][] distancematrix = new double[popSize][popSize];
 		for (int i = 0; i < popSize; i++) {
 			distancematrix[i][i] = 0;
@@ -74,6 +99,7 @@ public class CMOP extends AMOP {
 			System.arraycopy(index, 0, array, 0, neighbourSize);
 			neighbourTable.add(array);
 		}
+*/
 	}
 
 	private static double distance(double[] weight1, double[] weight2) {
@@ -134,6 +160,7 @@ public class CMOP extends AMOP {
 	}
 
 
+	// generate population for CHEA. Nov 11
 	@Override
 	void generateInitialPop() {
 		chromosomes = new ArrayList<MoChromosome>(popSize);
@@ -256,13 +283,43 @@ public class CMOP extends AMOP {
 	
 	@Override
 	public void updatePop() {
+		boolean isUpdate = false;
+		int len = 0 ;
+
+		// need to add a part about calculating the IGD every 25 gen or 10 gen Nov 11
 		for(int i = 0 ;i < popSize; i ++){
-			evolveNewInd(i);
+			// this is MOEAD part ; delete evolveNewInd(i);
+			// select two indivduals to reproduce a new offspring. Nov 11
+			int parentIndex1 = 0;
+			int parentIndex2 = 0;
+			int b = len % (popSize/7); 
+			if(b < hyperplaneInterceptNum) {
+				parentIndex1 =  hyperplaneInterceptPoints[b];
+			} else {
+				parentIndex1 = tourSelectionHV(chromosomes);
+			}
+			parentIndex2 = tourSelectionHV(chromosomes);
+			MoChromosome offSpring = new CMoChromosome();
+			offSpring.crossover((MoChromosome)chromosomes.get(parentIndex1),(MoChromosome)chromosomes.get(parentIndex2));
+			offSpring.mutate(1d/offSpring.genesDimesion);
+			
+			offSpring.evaluate(problem);
+			updatePoints(offSpring);
+			
+
+
+
 		}
+
+		// leave empty place for IGD
 	}
 
+	private void updatePoints(MoChromosome offSpring) {}
+
+	private int tourSelectionHV(List<MoChromosome> chromosomes) {}
 
 	private void evolveNewInd(int i) {
+		
 		MoChromosome offSpring = diffReproduction(i);
 		improve(i,offSpring);
 		offSpring.evaluate(problem);
