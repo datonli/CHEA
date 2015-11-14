@@ -15,11 +15,13 @@ public abstract class AMOP{
 	
 
 	protected static int hyperplaneIntercept;
+	protected static int neighbourNum;
 
 	public double[] idealPoint;
 	public List<double[]> weights;
 	public List<int[]> neighbourTable;
 	public List<MoChromosome> chromosomes;
+	public List<SOP> sops;
 	
 	public void clearAll(){
 		idealPoint = null;
@@ -34,6 +36,7 @@ public abstract class AMOP{
 		weights = new ArrayList<double[]>();
 		neighbourTable = new ArrayList<int[]>(popSize);
 		chromosomes = new ArrayList<MoChromosome>(popSize);
+		sops = new ArrayList<MoChromosome>(popSize);
 	}
 	
 	public abstract void initial();

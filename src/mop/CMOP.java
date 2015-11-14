@@ -46,7 +46,6 @@ public class CMOP extends AMOP {
 		generateInitialPop();
 		initNeighbour(neighbourSize);
 
-
 		evaluateAfterInitial();
 
 		// need to put the part of calculate the IGD  Nov 11
@@ -55,8 +54,8 @@ public class CMOP extends AMOP {
 
 
 	private void evaluateAfterInitial() {
-		for(int i = 0 ;i < chromosomes.size(); i ++){
-			chromosomes.get(i).evaluate(problem);
+		for(int i = 0 ;i < sops.size(); i ++){
+			sops.get(i).ind.evaluate(problem);
 		}
 		
 	}
@@ -160,7 +159,19 @@ public class CMOP extends AMOP {
 	}
 
 
+	
+
 	// generate population for CHEA. Nov 11
+	// modify to add sops Nov 14
+	void generateInitialPop() {
+		sops = new ArrayList<SOP>(popSize);
+		for(int i = 0 ; i < popSize; i ++){
+			sop = new SOP(CMoChromosome.createChromosome());
+			sops.add(sop);
+		}
+	}
+	
+/*	
 	@Override
 	void generateInitialPop() {
 		chromosomes = new ArrayList<MoChromosome>(popSize);
@@ -169,6 +180,7 @@ public class CMOP extends AMOP {
 			chromosomes.add(CMoChromosome.createChromosome());
 		}
 	}
+*/
 
 	private MoChromosome reproductionByCrossoverMutate(int i){
 		int k, l;
@@ -306,7 +318,7 @@ public class CMOP extends AMOP {
 			offSpring.evaluate(problem);
 			updatePoints(offSpring);
 			
-
+			len ++;	
 
 
 		}
@@ -314,9 +326,30 @@ public class CMOP extends AMOP {
 		// leave empty place for IGD
 	}
 
+	// updatePoints including reference points and extrem points. Nov 11
 	private void updatePoints(MoChromosome offSpring) {}
 
-	private int tourSelectionHV(List<MoChromosome> chromosomes) {}
+	// tour select two points as parents for reproduction.  Nov 11
+	private int tourSelectionHV(List<MoChromosome> chromosomes) {
+		int p1 = int(PRNG.nextDouble() * popSize);
+		int p2 = int(PRNG.nextDouble() * popSize);
+		double hv1 = tourSelectionHVDifference(p1,chromosomes);
+		double hv2 = tourSelectionHVDifference(p2,chromosomes);
+		if(hv1 >= hv2) return p1;
+		else return p2;
+	}
+
+	private int tourSelectionHVDifference(int p,List<MoChromosome> chromosomes){
+			int num = 0 ;
+			int index ;
+			double hvSide = 0.0;
+			double hvDifference = 0.0;
+			
+			// need to add a sub-problem class , CHEA must have a sub problem  Nov 13
+			while(chromosomes.get(i)
+	
+			belongSubproblemIndex;
+	}
 
 	private void evolveNewInd(int i) {
 		
