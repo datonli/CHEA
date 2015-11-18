@@ -130,6 +130,14 @@ public class CMoChromosome extends MoChromosome {
 		if (0 == kValue) kValue = hyperplaneIntercept;
 	}
 
+
+	// calc the belongSubproblemIndex (INDEX) Nov 18
+	public void objIndex(double[] idealPoint,int hyperplaneIntercept) {
+		double[] vObj;
+		vObj = calVObj(idealPoint,hyperplaneIntercept);
+		belongSubproblemIndex = getIndexFromVObj(vObj,hyperplaneIntercept);
+	}
+
 	public int getIndexFromVObj(int[] vObj, int hyperplaneIntercept) {
 		if ( 2 == objectiveDimesion ) return vObj[0] ;
 		else if ( 3 == objectiveDimesion ) return (hyperplaneIntercept - vObj[2] + 1) *  (hyperplaneIntercept - vObj[2] ) / 2 + vObj[0];

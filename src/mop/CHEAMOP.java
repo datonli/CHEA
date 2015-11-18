@@ -15,6 +15,7 @@ public class CHEAMOP extends MOP{
         allocateAll();
     } 	
 	
+	// init all data struct need to initial Nov 18
 	public void initial() {
 		initPopulation();
 		initNeighbour(1);
@@ -22,14 +23,25 @@ public class CHEAMOP extends MOP{
 	}
 
 
-	public void initPopulation() {
-	    for(int i = 0 ; i < popSize; i ++){
+	// generate subproblem, and add points to subpIndexOnEdge ... Nov 18
+	private void genSubProblems(){ 
+		for(int i = 0 ; i < popSize; i ++){
             sop = new SOP(CMoChromosome.createChromosome());
             sops.add(sop);       
 		}	
+	}
+
+	public void initPopulation() {
+		// generate subproblem , add them all into sops  , Nov 18
+	    genSubProblems();
+		// initial the all points
 		for(int i = 0; i < objectiveDimesion; i ++) {
 			
 		}
+		for(int n = 1 ; n < popSize; n ++) {
+			updateExtremePoint(sops.get(n).ind);
+		}
+		updatePartition();
 	}
 
 	public void evolutionTourSelect2() {}
@@ -129,14 +141,77 @@ public class CHEAMOP extends MOP{
 
 	}
 
+	// update after offspring 
+	public void updatePartition() {
+		for( int n = 0; n < popSize; n ++) {
+			sops.get(n).ind.objIndex(idealPoint,hyperplaneIntercept);
+		}	
+		boolean[] sopsFlag = new boolean[popSize];
+		List<MoChromosome> initRestIndPop = new ArrayList<MoChromosome>(popSize);
+		for(int n = 0 ; n < popSize; n ++) {
+			if(sops.get(n).sectorialIndex == sops.get(n).ind.belongSubproblemIndex ){
+				sopsFlag[sops.get(n).sectorialIndex] = true;
+			} else {
+				MoChromosome ind = sops.get(n).ind;
+				// maybe something wrong happend cause two "ind" Nov 18
+				while(true) {
+					sops[ind.belongSubproblemIndex] = true;
+					if(false == hyperVolumeCompareSectorialGrid(ind,ind)) 	break;
+				}
+			}
+			initRestIndPop.add(ind);
+		}
+		int sizeOfRestInd = initRestIndPop.size();
+		List<double[]> vObjRestInd = new ArrayList<double[]>(sizeOfRestInd);
+		double[] calVObj ;
+		for(int i = 0 ; i < sizeOfRestInd; i ++) {
+			calVObj = initRestIndPop.get(i).calVObj(idealPoint,hyperplaneIntercept);
+			vObjRestInd.add(calVObj);
+		}
+		for(int i = 0 ; i < popSize; i ++) {
+			if(false  == sopsFlag[i] ) {
+				SOP subproblem = sops.get(i);
+				int minIndexDist = 0;
+				for(int j = 0 ; j < objectiveDimesion; j ++) {
+					// Nov 18 maybe wrong in this place because of wrong define minIndexDist.
+					// for every objectiveDimesion value, should find the minium value, but below couldn't
+					// I don't know the use of minIndexDist. so don't know howto modify.
+					minIndexDist = Math.pow(vObjRestInd.get(0)[j] - subproblem.objectiveValue[j], 2.0);
+				}
+				int minDiffIndex = 0 ;
+				int restSize = initRestIndPop.size();
+				for( int k = 1; k < restSize; k ++ ) {
+					int indexDist = 0 ;
+					for (int j = 0 ; j < objectiveDimesion; j ++ ) {
+						indexDist = Math.pow(vObjRestInd.get(k)[j] - subproblem.objectiveDimesion[j], 2.0);
+					}
+					if(indexDist < minIndexDist || (indexDist == minIndexDist && PRNG.nextDouble() > 0.5) ) {
+						minIndexDist = indexDist;
+						minDiffIndex = k;
+					}
+				}
 
-	public void updatePartition() {}
+				sops.get(i).ind = initRestIndPop.get(minIndexDist);
+				sopsFlag[i] = true;
+
+				// don't know the use.  Nov 18
+				initRestIndPop.get(minDiffIndex) = initRestIndPop.get(restSize - 1);
+				vObjRestInd.get(minDiffIndex) = vObjRestInd.get(restSize - 1);
+				initRestIndPop.remove(initRestIndPop.size() - 1);
+				vObjRestInd.remove(vObjRestInd.size() - 1);
+			}
+		}
+	}
+
 
 	public void population2front(List<SOP> sops,List<double[]> popFront) {}
 
 	public void updateFixWeight(SOP subproblem,boolean delivery) {}
 
-	public boolean hyperVolumeCompareSectorialGrid(MoChromosome c1,MoChromosome c2) {}
+	public boolean hyperVolumeCompareSectorialGrid(MoChromosome c1,MoChromosome c2) {
+		
+	}
+
 
 
     private double calcIGD() {
