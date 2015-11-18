@@ -18,6 +18,7 @@ public abstract class AMOP{
 	protected static int neighbourNum;
 
 	public double[] idealPoint;
+	public double[] referencePoint;
 	public List<double[]> weights;
 	public List<int[]> neighbourTable;
 	public List<MoChromosome> chromosomes;
@@ -28,6 +29,7 @@ public abstract class AMOP{
 		weights = null;
 		neighbourTable = null;
 		chromosomes = null;
+
 		
 	}
 	
@@ -37,6 +39,7 @@ public abstract class AMOP{
 		neighbourTable = new ArrayList<int[]>(popSize);
 		chromosomes = new ArrayList<MoChromosome>(popSize);
 		sops = new ArrayList<MoChromosome>(popSize);
+		referencePoint = new double[objectiveDimesion];
 	}
 	
 	public abstract void initial();

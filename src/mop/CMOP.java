@@ -50,6 +50,7 @@ public class CMOP extends AMOP {
 
 		// need to put the part of calculate the IGD  Nov 11
 		// especially add after evalute the objectiveValue because IGD calculation need this data !
+
 	}
 
 
@@ -57,7 +58,6 @@ public class CMOP extends AMOP {
 		for(int i = 0 ;i < sops.size(); i ++){
 			sops.get(i).ind.evaluate(problem);
 		}
-		
 	}
 
 	private double calcIGD() {
@@ -77,28 +77,9 @@ public class CMOP extends AMOP {
 	
 	// initial the neighbour point for neighbour's subproblems. Nov 11.
 	private void initNeighbour(int neighbourNum) {
-
-		
-
-		//neighbourTable = new ArrayList<int[]>(popSize);
-
-/*
-		double[][] distancematrix = new double[popSize][popSize];
-		for (int i = 0; i < popSize; i++) {
-			distancematrix[i][i] = 0;
-			for (int j = i + 1; j < popSize; j++) {
-				distancematrix[i][j] = distance(weights.get(i), weights.get(j));
-				distancematrix[j][i] = distancematrix[i][j];
-			}
+		for (int i = 0; i <  popSize ; i ++) {
+			sops.get(i).getVicinity(vicinityRange,hyperplaneIntercept);
 		}
-
-		for (int i = 0; i < popSize; i++) {
-			int[] index = Sorting.sorting(distancematrix[i]);
-			int[] array = new int[neighbourSize];
-			System.arraycopy(index, 0, array, 0, neighbourSize);
-			neighbourTable.add(array);
-		}
-*/
 	}
 
 	private static double distance(double[] weight1, double[] weight2) {
@@ -164,7 +145,7 @@ public class CMOP extends AMOP {
 	// generate population for CHEA. Nov 11
 	// modify to add sops Nov 14
 	void generateInitialPop() {
-		sops = new ArrayList<SOP>(popSize);
+		//sops = new ArrayList<SOP>(popSize);
 		for(int i = 0 ; i < popSize; i ++){
 			sop = new SOP(CMoChromosome.createChromosome());
 			sops.add(sop);
@@ -292,7 +273,7 @@ public class CMOP extends AMOP {
 
 	
 	
-	
+	// update Pop part is main to excute the evolustion. Nov 14
 	@Override
 	public void updatePop() {
 		boolean isUpdate = false;
@@ -308,18 +289,17 @@ public class CMOP extends AMOP {
 			if(b < hyperplaneInterceptNum) {
 				parentIndex1 =  hyperplaneInterceptPoints[b];
 			} else {
-				parentIndex1 = tourSelectionHV(chromosomes);
+				parentIndex1 = tourSelectionHV(sops);
 			}
-			parentIndex2 = tourSelectionHV(chromosomes);
+			parentIndex2 = tourSelectionHV(sops);
 			MoChromosome offSpring = new CMoChromosome();
-			offSpring.crossover((MoChromosome)chromosomes.get(parentIndex1),(MoChromosome)chromosomes.get(parentIndex2));
+			offSpring.crossover((MoChromosome)sops.get(parentIndex1).ind,(MoChromosome)sops.get(parentIndex2).ind);
 			offSpring.mutate(1d/offSpring.genesDimesion);
 			
 			offSpring.evaluate(problem);
 			updatePoints(offSpring);
 			
 			len ++;	
-
 
 		}
 
@@ -330,26 +310,48 @@ public class CMOP extends AMOP {
 	private void updatePoints(MoChromosome offSpring) {}
 
 	// tour select two points as parents for reproduction.  Nov 11
-	private int tourSelectionHV(List<MoChromosome> chromosomes) {
+	private int tourSelectionHV(List<SOP> sops) {
 		int p1 = int(PRNG.nextDouble() * popSize);
 		int p2 = int(PRNG.nextDouble() * popSize);
-		double hv1 = tourSelectionHVDifference(p1,chromosomes);
-		double hv2 = tourSelectionHVDifference(p2,chromosomes);
+		double hv1 = tourSelectionHVDifference(p1,sops);
+		double hv2 = tourSelectionHVDifference(p2,sops);
 		if(hv1 >= hv2) return p1;
 		else return p2;
 	}
 
-	private int tourSelectionHVDifference(int p,List<MoChromosome> chromosomes){
+	private int tourSelectionHVDifference(int p,List<SOP> sops){
 			int num = 0 ;
 			int index ;
 			double hvSide = 0.0;
 			double hvDifference = 0.0;
 			
 			// need to add a sub-problem class , CHEA must have a sub problem  Nov 13
-			while(chromosomes.get(i)
-	
+			while(sops.get(i).ind.belongSubproblemIndex != sops.get(i).sectorialIndex) {
+				p = sops.get(i).ind.belongSubproblemIndex;
+			}
+			SOP subproblem = sops.get(p);
+			int subproblemNeighbourSize  = subproblem.neighbour.size();
+			double hv0 = getHyperVolume(sops.get(p).ind, referencePoint);
+			for(int i = 0 ; i < subproblemNeighbourSize; i ++) {
+				SOP sop = sops.get(subproblem.neighbour.get(i));
+				if( sop.sectorialIndex == sop.ind.belongSubproblemIndex) {
+					hvSide = getHyperVolume(sop.ind, referencePoint);
+					hvDifference += (hv0 - hvSide);
+					num ++;
+				}
+			}
+			if(num != 0) hvDifference = hvDifference/num;
+			return hvDifference;
 			belongSubproblemIndex;
 	}
+
+
+	double getHyperVolume(MoChromosome ind , double[] referencePoint) {
+		double volume = 1;
+		for(int j = 0 ; j < objectiveDimesion; j ++) volume *= (referencePoint - ind.objectiveValue[j]);
+		return volume;
+	}
+
 
 	private void evolveNewInd(int i) {
 		

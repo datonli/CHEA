@@ -1,11 +1,11 @@
 package mop;
 
 class SOP {
-	MoChromosome ind ;
-	int sectorialIndex;
-	List<int> neighbour;
-	double[] VObj;
-	int objectiveDimesion;
+	public MoChromosome ind ;
+	public int sectorialIndex;
+	public List<int> neighbour;
+	public double[] VObj;
+	public int objectiveDimesion;
 
 
 	public SOP(MoChromosome ind) {

@@ -18,8 +18,8 @@ public abstract class MoChromosome {
 
 
 	protected double kValue ;
-	protected static int hyperplaneIntercept;
-	protected static belongSubproblemIndex;
+	protected int hyperplaneIntercept;
+	protected int belongSubproblemIndex;
 
 
 	protected Object clone() throws CloneNotSupportedException {
@@ -28,7 +28,8 @@ public abstract class MoChromosome {
 	}
 
 	public void copyTo(MoChromosome copyto) {
-		copyto.fitnessValue = this.fitnessValue;
+		//copyto.fitnessValue = this.fitnessValue;
+		copyto.belongSubproblemIndex = this.belongSubproblemIndex;
 		System.arraycopy(objectiveValue, 0, copyto.objectiveValue, 0,
 				objectiveValue.length);
 		System.arraycopy(genes, 0, copyto.genes, 0,
