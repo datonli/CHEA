@@ -317,5 +317,25 @@ public class CHEAMOP extends MOP{
         distanceIGD /= popSize;
         return distanceIGD;
     }
-
+    public void write2File(String fileName) throws IOException{
+        File file = new File(fileName);
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        for(int n = 0 ; n < popSize; n ++){
+            StringBuffer sb = new StringBuffer();
+            for(int od = 0; od < objectiveDimesion; od ++){
+                if(0 != od)
+                    sb.append(" ");
+                sb.append(chromosomes.get(n).objectiveValue[od]);
+            }
+            if(n != popSize)
+                sb.append("\n");
+            bw.write(sb.toString());
+        }
+        bw.close();
+        fw.close();
+    }
 }

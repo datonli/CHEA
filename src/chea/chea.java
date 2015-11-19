@@ -2,8 +2,8 @@ package chea;
 
 import java.io.IOException;
 
-import mop.AMOP;
-import mop.CMOP;
+import mop.MOP;
+import mop.CHEAMOP;
 import problems.AProblem;
 import problems.DTLZ1;
 import problems.DTLZ2;
@@ -16,7 +16,7 @@ class chea {
 			int iterations = 400;
 			
 			AProblem problem = DTLZ1.getInstance();
-			AMOP mop = CMOP.getInstance(popSize,problem,hyperplaneIntercept);
+			MOP mop = CHEAMOP.getInstance(popSize,problem,hyperplaneIntercept);
 			mop.initial();
 			for(int i = 0 ; i < iterations; i ++) {
 				System.out.println("The " + i "th iteration !!");
