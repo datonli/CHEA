@@ -47,10 +47,12 @@ public abstract class MoChromosome {
 	}
 	
 	public abstract void calKVal(double[] idealPoint,int hyperplaneIntercept);
-	public abstract double[] calVObj(double[] idealPoint,int hyperplaneIntercept);
+	//public abstract double[] calVObj(double[] idealPoint,int hyperplaneIntercept);
+	public abstract int[] calVObj(double[] idealPoint,int hyperplaneIntercept);
 	public abstract void calMoChObjValue(doubel[] idealPoint,int hyperplaneIntercept);
 	public abstract double[] calNormailize(double[] idealPoint, int hyperplaneIntercept);
-	public abstract int getIndexFromVObj(double[int] vObj, int hyperplaneIntercept);
+	public abstract int getIndexFromVObj(double[] vObj, int hyperplaneIntercept);
+	public abstract void objIndex(double[] idealPoint,int hyperplaneIntercept);
 
 	public abstract void evaluate(AProblem problem);
 	

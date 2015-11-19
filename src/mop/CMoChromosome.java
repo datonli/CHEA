@@ -59,12 +59,15 @@ public class CMoChromosome extends MoChromosome {
 		return normailizedf;
 	}
 
+	// calc objectiveValue from int array , maybe wrong Nov 19
 	public void calMoChObjValue(double[] idealPoint, int hyperplaneIntercept) {
 		objectiveValue = calVObj(idealPoint,hyperplaneIntercept);
 	}
 
-	public double[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
-		double[] vValue = new double[objectiveDimesion];
+	//public double[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
+	public int[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
+		//double[] vValue = new double[objectiveDimesion];
+		int[] vValue = new int[objectiveDimesion];
 		double[] normailizedf = calNormailize(idealPoint,hyperplaneIntercept);
 		boolean[] isCompleteBit = new boolean[objectiveDimesion];
 		for ( int j = 0 ;j < objectiveDimesion; j ++) isCompleteBit[j] = false;
@@ -133,7 +136,8 @@ public class CMoChromosome extends MoChromosome {
 
 	// calc the belongSubproblemIndex (INDEX) Nov 18
 	public void objIndex(double[] idealPoint,int hyperplaneIntercept) {
-		double[] vObj;
+		//double[] vObj;
+		int[] vObj;
 		vObj = calVObj(idealPoint,hyperplaneIntercept);
 		belongSubproblemIndex = getIndexFromVObj(vObj,hyperplaneIntercept);
 	}

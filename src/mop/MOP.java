@@ -8,8 +8,10 @@ public abstract class MOP {
 	int popSize;
 	int hyperplaneIntercept;
 	int neighbourNum;
+	double perIntercept; 
 
-	List<double[]> anchorPoint;
+	//List<double[]> anchorPoint;
+	double[][] anchorPoint;
 	double[] trueNadirPoint;
 	double[] idealPoint;
 	double[] referencePoint;
@@ -22,7 +24,8 @@ public abstract class MOP {
 	int objectiveDimesion;
 
 	public void allocateAll() {
-		anchorPoint = new ArrayList<double[]>(objectiveDimesion);
+		//anchorPoint = new ArrayList<double[]>(objectiveDimesion);
+		anchorPoint = new double[objectiveDimesion][objectiveDimesion];
 		trueNadirPoint = new double[objectiveDimesion];
 		idealPoint = new double[objectiveDimesion];
 		referencePoint = new double[objectiveDimesion];
@@ -44,7 +47,7 @@ public abstract class MOP {
 	}
 	
 	public abstract void initNeighbour(int neighbourNum);
-	public abstract boolean hyperVolumeCompareSectorialGrid(MoChromosome c1,MoChromosome c2);
+	public abstract MoChromosome hyperVolumeCompareSectorialGrid(MoChromosome ind);
 	public abstract boolean updateExtremePoint(MoChromosome ind);
 	public abstract void updatePartition();
 	public abstract void population2front(List<SOP> sops, List<double[]> popFront);
