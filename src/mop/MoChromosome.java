@@ -51,7 +51,8 @@ public abstract class MoChromosome {
 	public abstract int[] calVObj(double[] idealPoint,int hyperplaneIntercept);
 	public abstract void calMoChObjValue(doubel[] idealPoint,int hyperplaneIntercept);
 	public abstract double[] calNormailize(double[] idealPoint, int hyperplaneIntercept);
-	public abstract int getIndexFromVObj(double[] vObj, int hyperplaneIntercept);
+	//public abstract int getIndexFromVObj(double[] vObj, int hyperplaneIntercept);
+	public abstract int getIndexFromVObj(int[] vObj, int hyperplaneIntercept);
 	public abstract void objIndex(double[] idealPoint,int hyperplaneIntercept);
 
 	public abstract void evaluate(AProblem problem);
@@ -62,4 +63,6 @@ public abstract class MoChromosome {
 	public abstract String vectorString();
 	
 	public abstract String getParameterString();
+
+	public abstract int compareInd(MoChromosome ind2);
 }
