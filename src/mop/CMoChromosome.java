@@ -61,12 +61,14 @@ public class CMoChromosome extends MoChromosome {
 
 	// calc objectiveValue from int array , maybe wrong Nov 19
 	public void calMoChObjValue(double[] idealPoint, int hyperplaneIntercept) {
-		objectiveValue = calVObj(idealPoint,hyperplaneIntercept);
+		//objectiveValue = calVObj(idealPoint,hyperplaneIntercept);
+		int[] vObj = calVObj(idealPoint,hyperplaneIntercept);
+		for(int i = 0 ; i < vObj.length; i ++) objectiveValue[i] = vObj[i] + 0.0;
 	}
 
-	//public double[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
-	public int[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
+	//public double[] calVObj(double[] idealPoint,int hyperplaneIntercept) { public int[] calVObj(double[] idealPoint,int hyperplaneIntercept) {
 		//double[] vValue = new double[objectiveDimesion];
+	public int[] calVObj(double[] idealPoint,int hyperplaneIntercept){
 		int[] vValue = new int[objectiveDimesion];
 		double[] normailizedf = calNormailize(idealPoint,hyperplaneIntercept);
 		boolean[] isCompleteBit = new boolean[objectiveDimesion];
@@ -90,7 +92,7 @@ public class CMoChromosome extends MoChromosome {
 
 		while(true) {
 			selectData = (( -lowDif[minIndex] ) < upDif[minIndex] ? lowDif[minIndex] : upDif[minIndex]);
-			vValue[minIndex] = selectData < 0 ? Math.floor(normailizedf[minIndex]) : Math.ceil( normailizedf[minIndex]);
+			vValue[minIndex] = (int)(selectData < 0 ? Math.floor(normailizedf[minIndex]) : Math.ceil( normailizedf[minIndex]));
 			isCompleteBit[minIndex] = true;
 			size --;
 
@@ -118,7 +120,7 @@ public class CMoChromosome extends MoChromosome {
 			}
 		}
 		for(int i = 0; i < objectiveDimesion; i ++) {
-			isCompleteBit = false;
+			isCompleteBit[i] = false;
 			lowDif[i] = 0;
 			upDif[i] = 0;
 			normailizedf[i] = 0;
@@ -128,7 +130,7 @@ public class CMoChromosome extends MoChromosome {
 
 	public void calKVal(double[] idealPoint,int hyperplaneIntercept) {
 		kValue = 0.0;
-		for (int j = 0 ; j < objRelativeSum; j ++) 
+		for (int j = 0 ; j < objectiveDimesion; j ++) 
 				kValue += ( objectiveValue[j] - idealPoint[j]);
 		if (0 == kValue) kValue = hyperplaneIntercept;
 	}
@@ -154,7 +156,7 @@ public class CMoChromosome extends MoChromosome {
 		for (int i = 0 ; i < objectiveDimesion - 1 ; i ++) {
 			resultIndex += choose(h[i] + objectiveDimesion -2 -i , objectiveDimesion - 1 -i);
 		}
-		for(int i = 0 ; i < objectiveDimesion -1 ; i ++) h = 0;
+		for(int i = 0 ; i < objectiveDimesion -1 ; i ++) h[i] = 0;
 		return resultIndex;
 	}
 
@@ -163,7 +165,7 @@ public class CMoChromosome extends MoChromosome {
 		return (int) Math.floor(0.5 + Math.exp(lnchoose(n,m)));
 	}
 
-	int lnchoose(int n, int m) {
+	double lnchoose(int n, int m) {
 		if (m > n) return 0;
 		if (m < n/2.0) m = n - m;
 		double s1 =  0;
@@ -171,7 +173,7 @@ public class CMoChromosome extends MoChromosome {
 		double s2 = 0; 
 		int ub = n - m;
 		for (int i = 2; i <= ub; i ++) s1 += Math.log((double)i);
-		return s1-s2;
+		return (s1 - s2);
 	}
 
 	

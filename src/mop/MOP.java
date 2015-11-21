@@ -1,8 +1,21 @@
 package mop;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import problems.AProblem;
+import utilities.WrongRemindException;
+
 public abstract class MOP {
+	static MOP instance;
+
 	List<SOP> sops;
-	List<MoChromosome> ps;
+	List<double[]> ps;
+	List<double[]> igd;
 	//MoChromosome oneChild; due to use as offspring
 
 	int popSize;
@@ -18,7 +31,7 @@ public abstract class MOP {
 
 
 	int sizeSubpOnEdge;
-	List<int> subpIndexOnEdge;
+	List<Integer> subpIndexOnEdge;
 
 	AProblem problem;
 	int objectiveDimesion;
@@ -29,33 +42,35 @@ public abstract class MOP {
 		trueNadirPoint = new double[objectiveDimesion];
 		idealPoint = new double[objectiveDimesion];
 		referencePoint = new double[objectiveDimesion];
-		subProblem = new ArrayList<int>(objectiveDimesion);
-
+		subpIndexOnEdge = new ArrayList<Integer>(objectiveDimesion);
+		sops = new ArrayList<SOP>(popSize);
 	}
 	
 	public abstract void initial();
 
-	public abstract void excute(int run,List<double> igd);
+
+	//public abstract void excute(int run,List<Double> igd);
 	public abstract void evolutionTourSelect2();
 	public abstract void initPopulation();
-	public abstract double calcDistance(double[] w1,double[] w2) {
+	public double calcDistance(double[] w1,double[] w2) {
 		double sum= 0.0;
 		for(int i = 0; i < w1.length; i ++) {
-			sum += Math.pow((weight1[i] - weight2[i]), 2);
+			sum += Math.pow((w1[i] - w2[i]), 2.0);
 		}
 		return Math.sqrt(sum);
 	}
 	
+	public abstract void updatePop(int itertions);
 	public abstract void initNeighbour(int neighbourNum);
 	public abstract MoChromosome hyperVolumeCompareSectorialGrid(MoChromosome ind);
 	public abstract boolean updateExtremePoint(MoChromosome ind);
 	public abstract void updatePartition();
-	public abstract void population2front(List<SOP> sops, List<double[]> popFront);
+	public abstract List<double[]> population2front(List<SOP> pop);
 	public abstract double getHyperVolume(MoChromosome ind,double[] referencePointCalc);
 	public abstract int tourSelectionHV(List<SOP> sops);
 	public abstract double tourSelectionHVDifference(int p,List<SOP> sops);
-	public abstract void savePopulation(List<SOP> sops,String fileName);
-	public abstract void savePs(String fileName);
+	//public abstract void savePopulation(List<SOP> sops,String fileName);
+	public abstract void savePs(String fileName) throws IOException;
 	public abstract void write2File(String fileName) throws IOException;
 	public abstract void updateFixWeight(SOP subProblem,boolean delivery);
 }

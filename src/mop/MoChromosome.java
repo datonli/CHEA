@@ -13,7 +13,6 @@ public abstract class MoChromosome {
 	protected static int genesDimesion;
 	protected double[] genes;
 	protected double[] objectiveValue;
-	protected double fitnessValue;
 	protected static int[][] range;
 
 
@@ -29,6 +28,7 @@ public abstract class MoChromosome {
 
 	public void copyTo(MoChromosome copyto) {
 		//copyto.fitnessValue = this.fitnessValue;
+		copyto.kValue = this.kValue;
 		copyto.belongSubproblemIndex = this.belongSubproblemIndex;
 		System.arraycopy(objectiveValue, 0, copyto.objectiveValue, 0,
 				objectiveValue.length);
@@ -49,7 +49,7 @@ public abstract class MoChromosome {
 	public abstract void calKVal(double[] idealPoint,int hyperplaneIntercept);
 	//public abstract double[] calVObj(double[] idealPoint,int hyperplaneIntercept);
 	public abstract int[] calVObj(double[] idealPoint,int hyperplaneIntercept);
-	public abstract void calMoChObjValue(doubel[] idealPoint,int hyperplaneIntercept);
+	public abstract void calMoChObjValue(double[] idealPoint,int hyperplaneIntercept);
 	public abstract double[] calNormailize(double[] idealPoint, int hyperplaneIntercept);
 	//public abstract int getIndexFromVObj(double[] vObj, int hyperplaneIntercept);
 	public abstract int getIndexFromVObj(int[] vObj, int hyperplaneIntercept);
@@ -65,4 +65,8 @@ public abstract class MoChromosome {
 	public abstract String getParameterString();
 
 	public abstract int compareInd(MoChromosome ind2);
+
+	public int getObjectiveDimesion() {
+		return objectiveDimesion;
+	}
 }
