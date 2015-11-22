@@ -8,8 +8,8 @@ import mop.MopDataPop;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
-import mop.AMOP;
-import mop.CMOP;
+import mop.MOP;
+import mop.CHEAMOP;
 
 import problems.AProblem;
 import problems.ZDT1;
@@ -37,7 +37,7 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 		int popSize = 406;
 		int neighbourSize = 30;
 		AProblem problem = DTLZ1.getInstance();
-		AMOP mop = CMOP.getInstance(popSize, neighbourSize, problem);
+		MOP mop = CHEAMOP.getInstance(popSize, neighbourSize, problem);
 		MopDataPop mopData = new MopDataPop(mop);
 		//MopDataPop mopData = new MopDataPop();
 		System.out.println("map begin ... ");

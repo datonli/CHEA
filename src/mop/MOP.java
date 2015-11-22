@@ -15,7 +15,6 @@ public abstract class MOP {
 
 	List<SOP> sops;
 	List<double[]> ps;
-	List<double[]> igd;
 	//MoChromosome oneChild; due to use as offspring
 
 	int popSize;
@@ -70,7 +69,6 @@ public abstract class MOP {
 	public abstract int tourSelectionHV(List<SOP> sops);
 	public abstract double tourSelectionHVDifference(int p,List<SOP> sops);
 	//public abstract void savePopulation(List<SOP> sops,String fileName);
-	public abstract void savePs(String fileName) throws IOException;
 	public abstract void write2File(String fileName) throws IOException;
 	public abstract void updateFixWeight(SOP subProblem,boolean delivery);
 }

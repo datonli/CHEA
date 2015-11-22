@@ -28,21 +28,13 @@ public class CHEAMOP extends MOP{
 			instance = new CHEAMOP(popSize,problem,hyperplaneIntercept,neighbourNum);
 		return instance;
 	}
+	
+
 	// init all data struct need to initial Nov 18
 	public void initial() {
 		initPopulation();
 		initNeighbour(neighbourNum);
 		//after this part , next would be step 2 Nov 19
-		//initial IGD calc Nov 19
-		igd = new ArrayList<double[]>(popSize);
-		String filename = "/home/laboratory/workspace/TestData/PF_Real/DTLZ1(3).dat";
-		try {
-			ps = IGD.loadPfront(filename);
-		} catch (IOException e) {
-		
-		}
-
-
 	}
 
     // initial the neighbour point for neighbour's subProblems. Nov 11.
@@ -180,6 +172,14 @@ public class CHEAMOP extends MOP{
     // update Pop part is main to excute the evolustion. Nov 14
     @Override
     public void updatePop(int iterations) {
+		//initial IGD calc Nov 19
+		IGD igdOper = new IGD(1500);
+		String filename = "/home/laboratory/workspace/TestData/PF_Real/DTLZ1(3).dat";
+		try {
+			ps = igdOper.loadPfront(filename);
+		} catch (IOException e) {
+		}
+
 		for(int gen = 1 ; gen <= iterations; gen ++) {
 			evolutionTourSelect2();
 			// calc igd , using ps and sops's objectiveValue 
@@ -187,15 +187,14 @@ public class CHEAMOP extends MOP{
 			double[] genDisIGD = new double[2];
 			genDisIGD[0] = gen;
 			genDisIGD[1] = calcIGD();
-			igd.add(genDisIGD);
+			igdOper.igd.add(genDisIGD);
 
 			// add IGD value into a datastruct Nov 19
 		}
-		String filename = "/home/laboratory/workspace/moead_parallel/experiments/igd_DTLZ1_3.txt";
+		filename = "/home/laboratory/workspace/moead_parallel/experiments/CHEA_IGD_DTLZ1_3.txt";
 		try {
-			savePs(filename);	
+			igdOper.saveIGD(filename);	
 		} catch (IOException e) {
-			
 		}
 	}
 
@@ -415,20 +414,6 @@ public class CHEAMOP extends MOP{
         return distanceIGD;
     }
 
-	public void savePs(String fileName) throws IOException {
-		File file = new File(fileName);
-        if(!file.exists()){
-            file.createNewFile();
-        }
-        FileWriter fw = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter bw = new BufferedWriter(fw);
-        for(int n = 0 ; n < igd.size(); n ++){
-			bw.write(StringJoin.join(" ",igd.get(n)));
-            if(n < igd.size() - 1) bw.write("\n");
-        }
-        bw.close();
-        fw.close();
-	}
 
     public void write2File(String fileName) throws IOException{
         File file = new File(fileName);

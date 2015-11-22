@@ -11,132 +11,106 @@ import utilities.WrongRemindException;
 
 public class MopData implements DataOperator {
 
-	public AMOP mop;
+	public MOP mop;
 
-	public MopData() {
-		try {
-			mop = (AMOP) CMOP.getInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void setDelimiter(String delimiter) {
+		DELIMITER = delimiter;
 	}
 
-	public MopData(AMOP mop) {
+	public MopData(MOP mop) {
 		this.mop = mop;
 	}
 
+
+	private String sop2Line(SOP subProblem) {
+		List<String> col = new ArrayList<String>();
+		col.add(StringJoin.join(",",subProblem.ind.genes));
+		col.add(StringJoin.join(",",subProblem.ind.objectiveValue));
+		col.add(String.valueOf(subProblem.ind.kValue));
+		col.add(String.valueOf(subProblem.ind.hyperplaneIntercept));
+		col.add(String.valueOf(subProblem.ind.belongSubproblemIndex));
+		col.add(String.valueOf(subProblem.sectorialIndex));
+		col.add(StringJoin.join(",",IntegerList2IntArray(subProblem.neighbour)));
+		col.add(StringJoin.join(",",subProblem.vObj));
+		col.add(StringJoin.join(",",subProblem.fixWeight));
+		col.add(String.valueOf(subProblem.objectiveDimesion));
+		return StringJoin.join("#",col);
+	}
+
+	private int[] IntegerList2IntArray(List<Integer> l) {
+		int[] n = new int[l.size()];
+		for(int i = 0 ; i < l.size(); i ++) {
+			n[i] = l.get(i);
+		}
+		return n;
+	}
+
+	private List<Integer> IntArray2IntegerList(int[] arr) {
+		List<Integer> l = new ArrayList<Integer>(arr.length);
+		for(int i = 0 ; i < arr.length; i ++) {
+			l.add(new Integer(arr[i]));
+		}
+		return l;
+	}
+
+	private String mopAtr2Str() {
+		List<String> col = new ArrayList<String>(mop.popSize + 1);
+		col.add(String.valueOf(mop.popSize));
+		col.add(String.valueOf(mop.hyperplaneIntercept));
+		col.add(String.valueOf(mop.neighbourNum));
+		col.add(String.valueOf(mop.perIntercept));
+		List<String> tmp = new ArrayList<String>();
+		for(int i = 0 ; i < mop.anchorPoint.length; i ++) {
+			tmp.add(StringJoin.join(",",mop.anchorPoint[i]));
+		}
+		col.add(StringJoin.join("#",tmp));
+		col.add(StringJoin.join("#",mop.trueNadirPoint));
+		col.add(StringJoin.join("#",mop.idealPoint));
+		col.add(StringJoin.join("#",mop.referencePoint));
+		col.add(String.valueOf(mop.sizeSubpOnEdge));
+		col.add(StringJoin.join("#",IntegerList2IntArray(mop.subpIndexOnEdge)));
+		col.add(String.valueOf(mop.objectiveDimesion));
+		return StringJoin.join(
+	}
+
+	// mop transfer to String popStr Nov 22
+	@Override
 	public String mop2Str() {
-		List<String> col = new ArrayList<String>();
-		for (int i = 0; i < mop.chromosomes.size(); i++) {
-			col.add(mop2Line(i));
+		List<String> col = new ArrayList<String>(mop.popSize + 1);
+		for(int i = 0; i < mop.popSize; i ++) {
+			col.add(sop2Line(mop.sops.get(i)));
 		}
-		col.add("111111111 " + StringJoin.join(",", mop.idealPoint));
-		return StringJoin.join("\n", col);
+		col.add("111111111 " + mopAtr2Str());
+		return StringJoin.join(
+	}
+
+
+	private void str2Sop(int i,String sopStr) throws WrongRemindException{
+		String[] ss = sopStr.split("#");
+		if(9 != ss.length) throws WrongRemindException("Wrong sop");
+		mop.sops.get(i).ind.genes = StringJoin.decodeDoubleArray(",",ss[0]);
+		mop.sops.get(i).ind.objectiveValue = StringJoin.decodeDoubleArray(",",ss[1]);
+		mop.sops.get(i).ind.kValue = Double.parseDouble(ss[2]);
+		mop.sops.get(i).ind.hyperplaneIntercept = Integer.parseInt(ss[3]);
+		mop.sops.get(i).ind.belongSubproblemIndex = Integer.parseInt(ss[4]);
+		mop.sops.get(i).sectorialIndex = Integer.parseInt(ss[5]);
+		mop.sops.get(i).neighbour = IntArray2IntegerList(StringJoin.decodeIntArray(",",ss[6]));
+		mop.sops.get(i).vObj = StringJoin.decodeIntArray(",",ss[7]);
+		mop.sops.get(i).fixWeight = StringJoin.decodeDoubleArray(",",ss[8]);
+		mop.sops.get(i).objectiveDimesion = Integer.parseInt(ss[9]);
+	}
+
+	private void str2MopAtr(String str) {
+		
 	}
 
 	@Override
-	public String mop2Line(int i) {
-		List<String> col = new ArrayList<String>();
-		col.add(StringJoin.join(",", mop.weights.get(i)));
-		col.add(StringJoin.join(",", mop.chromosomes.get(i).genes));
-		col.add(StringJoin.join(",", mop.chromosomes.get(i).objectiveValue));
-		col.add(StringJoin.join(",", mop.neighbourTable.get(i)));
-		col.add(String.valueOf(mop.chromosomes.get(i).fitnessValue));
-		return StringJoin.join(" ", col);
-	}
-
-	public String idealPoint2Line() {
-		return StringJoin.join(",", mop.idealPoint);
-	}
-
-	public String weight2Line(int i) {
-		return StringJoin.join(",", mop.weights.get(i));
-	}
+	public void str2Mop(String popStr) {
 	
-
-	public double[] line2ObjValue(String line) {
-		String[] lineSplit = line.split(" ");
-		String[] objectiveValueStr = lineSplit[2].split(",");
-		double[] objectiveValue = new double[objectiveValueStr.length];
-		for (int i = 0; i < objectiveValueStr.length; i++) {
-			objectiveValue[i] = Double.parseDouble(objectiveValueStr[i]);
-		}
-		return objectiveValue;
 	}
 
 	@Override
-	public void line2mop(String line) throws WrongRemindException {
-		String[] lineSplit = line.split(" ");
-		if ("111111111".equals(lineSplit[0])) {
-			String[] idealPoint = lineSplit[1].split(",");
-			if (idealPoint.length != mop.idealPoint.length) {
-				throw new WrongRemindException(
-						"idealPoint length isn't match. Data transfer error!");
-			}
-			for (int i = 0; i < idealPoint.length; i++) {
-				mop.idealPoint[i] = Double.parseDouble(idealPoint[i]);
-			}
-		} else {
-			String[] weightStr = lineSplit[0].split(",");
-			double[] weight = new double[mop.objectiveDimesion];
-			if (weightStr.length != weight.length) {
-				throw new WrongRemindException(
-						"weight length isn't match. Data transfer error!\n"
-								+ "weightStr.lenght is : " + weightStr.length
-								+ "\nweight.length is :" + weight.length);
-			}
-			for (int i = 0; i < weightStr.length; i++) {
-				weight[i] = Double.parseDouble(weightStr[i]);
-			}
-			mop.weights.add(weight);
-
-			String[] chromosomeStr = lineSplit[1].split(",");
-			String[] objectiveValueStr = lineSplit[2].split(",");
-			String fitnessValueStr = lineSplit[4];
-			MoChromosome chromosome = CMoChromosome.createChromosome();
-			if (chromosomeStr.length != chromosome.genes.length) {
-				throw new WrongRemindException(
-						"chromosome length isn't match. Data transfer error!");
-			}
-			if (objectiveValueStr.length != chromosome.objectiveValue.length) {
-				throw new WrongRemindException(
-						"objectiveValue length isn't match. Data transfer error!");
-			}
-			for (int i = 0; i < chromosomeStr.length; i++) {
-				chromosome.genes[i] = Double.parseDouble(chromosomeStr[i]);
-			}
-			for (int i = 0; i < objectiveValueStr.length; i++) {
-				chromosome.objectiveValue[i] = Double
-						.parseDouble(objectiveValueStr[i]);
-			}
-			chromosome.fitnessValue = Double.parseDouble(fitnessValueStr);
-			mop.chromosomes.add(chromosome);
-
-			String[] neighbourStr = lineSplit[3].split(",");
-			int[] neighbour = new int[mop.neighbourSize];
-			if (neighbourStr.length != neighbour.length) {
-				throw new WrongRemindException(
-						"neighbour length isn't match. Data transfer error!");
-			}
-			for (int i = 0; i < neighbourStr.length; i++) {
-				neighbour[i] = Integer.parseInt(neighbourStr[i]);
-			}
-			mop.neighbourTable.add(neighbour);
-		}
-	}
+	public boolean write2FileTime(String filename, String str, int writeTime) throws IOException {
 	
-	public void clear() {
-		mop.clearAll();
-		mop.allocateAll();
 	}
-	
-	public boolean write2File(String filename, String str) throws IOException {
-		DataOutputStream dataOutputStream = new DataOutputStream(
-				new FileOutputStream(filename));
-			dataOutputStream.writeBytes(str);
-			dataOutputStream.writeBytes("\n");
-		dataOutputStream.close();
-		return true;
-	}
-
 }

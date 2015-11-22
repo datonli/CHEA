@@ -60,4 +60,24 @@ public class StringJoin {
 		}
 		return str.toString();
 	}
+
+	public static int[] decodeIntArray(String delimiter,String str) {
+		String[] ss = str.split(delimiter);
+		int[] arr = new int[ss.length];
+		for(int i = 0 ; i < ss.length; i ++) {
+			arr[i] = Integer.parseInt(ss[i]);
+		}
+		return arr;
+	}
+
+	public static double[] decodeDoubleArray(String delimiter,String str) {
+		String[] ss = str.split(delimiter);
+		double[] arr = new double[ss.length];
+		for(int i = 0 ; i < ss.length; i ++) {
+			arr[i] = Double.parseDouble(ss[i]);
+		}
+		return arr;
+	}
+
+
 }

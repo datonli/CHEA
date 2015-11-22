@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import moead.MOEAD;
-import mop.AMOP;
-import mop.CMOP;
+import chea.chea;
+import mop.MOP;
+import mop.CHEAMOP;
 import mop.MopData;
 import mop.MopDataPop;
 
@@ -19,7 +19,6 @@ import org.apache.hadoop.mapred.lib.NLineInputFormat;
 import problems.AProblem;
 import problems.DTLZ2;
 import problems.DTLZ1;
-import problems.ZDT1;
 import utilities.StringJoin;
 import utilities.WrongRemindException;
 
@@ -40,7 +39,7 @@ public class CheaMr{
 		int innerLoop = 1;
 		int loopTime = iterations / (writeTime * innerLoop);
 		AProblem problem = DTLZ1.getInstance();
-		AMOP mop = CMOP.getInstance(popSize, neighbourSize, problem);
+		MOP mop = CHEAMOP.getInstance(popSize, neighbourSize, problem);
 
 		mop.initial();
 		// comment original code for running serial.
@@ -95,6 +94,7 @@ public class CheaMr{
 					+ (i+1)));
 			System.out.println("Run job begin ... ");
 			JobClient.runJob(jobConf);
+			// running Job util it ends Nov 22
 			System.out.println("Run job end ... ");
 
 			// read the output of reduce and write the pop in moead.txt
