@@ -29,46 +29,51 @@ public class CheaMr{
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
+	 * @throws WrongRemindException
 	 */
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException, InterruptedException, WrongRemindException {
 		int popSize = 406;
-		int neighbourSize = 30;
+		int hyperplaneIntercept = 27;
+		int neighbourNum = 2;
 		int iterations = 800;
 		int writeTime = 4;
 		int innerLoop = 1;
 		int loopTime = iterations / (writeTime * innerLoop);
 		AProblem problem = DTLZ1.getInstance();
-		MOP mop = CHEAMOP.getInstance(popSize, neighbourSize, problem);
-
+		MOP mop = CHEAMOP.getInstance(popSize, problem , hyperplaneIntercept, neighbourNum);
 		mop.initial();
 		// comment original code for running serial.
-		// MOEAD.moead(mop,iterations);
+		// MOEAD.chea(mop,iterations);
 		
 		
 		// Oct 30  writing another mopData to use as multi pop in one file.
 		//MopData mopData = new MopData(mop);
 		
-		MopDataPop mopData = new MopDataPop(mop);
+		MopData mopData = new MopData(mop,problem);
+
+		// must have generate the mop's all inds. Nov 22
 		String mopStr = mopData.mop2Str();
+
+
 		HdfsOper hdfsOper = new HdfsOper();
-		hdfsOper.mkdir("moead/");
+		hdfsOper.mkdir("chea/");
 		for(int i = 0; i < iterations + 1; i ++)
-			hdfsOper.rm("moead/" + i + "/");
-		hdfsOper.mkdir("moead/0/");
-		hdfsOper.createFile("moead/moead.txt", mopStr, writeTime);
-		hdfsOper.cp("moead/moead.txt","moead/0/part-00000");
+			hdfsOper.rm("chea/" + i + "/");
+		hdfsOper.mkdir("chea/0/");
+		hdfsOper.createFile("chea/chea.txt", mopStr, writeTime);
+		hdfsOper.cp("chea/chea.txt","chea/0/part-00000");
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("Timer start!!!");
 		for (int i = 0; i < loopTime; i++) {
 			System.out.println("The " + i + "th time!");
-			JobConf jobConf = new JobConf(MoeadMr.class);
-			jobConf.setJobName("moead mapreduce");
+			JobConf jobConf = new JobConf(CheaMr.class);
+			jobConf.setJobName("chea mapreduce");
 			jobConf.setNumMapTasks(writeTime);
 			jobConf.setNumReduceTasks(1);
 
-			jobConf.setJarByClass(MoeadMr.class);
+			jobConf.setJarByClass(CheaMr.class);
 			MapClass.setInnerLoop(innerLoop);
 			//MyFileInputFormat.setReadFileTime(jobConf,writeTime);
 			//jobConf.setInputFormat(MyFileInputFormat.class);
@@ -83,34 +88,38 @@ public class CheaMr{
 
 			
 			FileInputFormat.addInputPath(jobConf,new Path(
-					"hdfs://master:8020/user/root/moead/moead.txt"));
+					"hdfs://master:8020/user/root/chea/chea.txt"));
 			/*
 			FileInputFormat.addInputPath(jobConf,new Path(
-					"hdfs://master:8020/user/root/moead/"
+					"hdfs://master:8020/user/root/chea/"
 					+ i + "/part-r-00000"));
 			*/
 			FileOutputFormat.setOutputPath(jobConf,new Path(
-					"hdfs://master:8020/user/root/moead/"
+					"hdfs://master:8020/user/root/chea/"
 					+ (i+1)));
 			System.out.println("Run job begin ... ");
 			JobClient.runJob(jobConf);
 			// running Job util it ends Nov 22
 			System.out.println("Run job end ... ");
 
-			// read the output of reduce and write the pop in moead.txt
+			// read the output of reduce and write the pop in chea.txt
+			// Nov 22, not clear() method
 			mopData.clear();
 			mopData.setDelimiter("\n");
+
+
+
 			// read the whole file
-			mopData.line2mop(hdfsOper.readWholeFile("moead/"+(i+1)+"/part-00000"));		
+			mopData.str2Mop(hdfsOper.readWholeFile("chea/"+(i+1)+"/part-00000"));		
 			mopStr = mopData.mop2Str();
-			hdfsOper.rm("moead/moead.txt");
-			hdfsOper.createFile("moead/moead.txt", mopStr, writeTime);
+			hdfsOper.rm("chea/chea.txt");
+			hdfsOper.createFile("chea/chea.txt", mopStr, writeTime);
 			mopData.clear();
 		}
 		System.out.println("Running time is : " + (System.currentTimeMillis() - startTime));
 		//for (int i = 0; i < loopTime + 1; i++) {
-			//BufferedReader br = new BufferedReader(hdfsOper.open("moead/" + i + "/part-00000"));
-			BufferedReader br = new BufferedReader(hdfsOper.open("moead/"+(loopTime-1)+"/part-00000"));
+			//BufferedReader br = new BufferedReader(hdfsOper.open("chea/" + i + "/part-00000"));
+			BufferedReader br = new BufferedReader(hdfsOper.open("chea/"+(loopTime-1)+"/part-00000"));
 			String line = null;
 			String content = null;
 			List<String> col = new ArrayList<String>();
@@ -118,10 +127,10 @@ public class CheaMr{
 				col.add(StringJoin.join(" ",mopData.line2ObjValue(line)));
 			}
 			content = StringJoin.join("\n", col);
-			//mopData.write2File("/home/laboratory/workspace/moead_parallel/experiments/parallel/" + i + ".txt",content);
+			//mopData.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/" + i + ".txt",content);
 			//if(i == loopTime)
-				mopData.write2File("/home/laboratory/workspace/moead_parallel/experiments/parallel/mr_moead.txt",content);
-//			hdfsOper.createFile("/moead/" + i + "/objectiveValue.txt", content);
+				mopData.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/mr_chea.txt",content);
+//			hdfsOper.createFile("/chea/" + i + "/objectiveValue.txt", content);
 		//}
 		System.out.println("LoopTime is : " + loopTime + "\n");
 	}

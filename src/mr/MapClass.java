@@ -2,7 +2,8 @@ package mr;
 
 import java.io.IOException;
 
-import moead.MOEAD;
+import chea.chea;
+
 import mop.MopData;
 import mop.MopDataPop;
 import org.apache.hadoop.io.*;
@@ -23,8 +24,8 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 	
 	//static MopDataPop mopData = new MopDataPop();
 	
-	Text weightVector = new Text();
-	Text indivInfo = new Text();
+	Text keyIndex = new Text();
+	Text valueInd = new Text();
 
 	public static void setInnerLoop(int innerLoopTime){
 		innerLoop = innerLoopTime;
@@ -35,35 +36,38 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 		String paragraph = value.toString();
 		System.out.println("paragraph is \n" + paragraph);
 		int popSize = 406;
-		int neighbourSize = 30;
 		AProblem problem = DTLZ1.getInstance();
-		MOP mop = CHEAMOP.getInstance(popSize, neighbourSize, problem);
-		MopDataPop mopData = new MopDataPop(mop);
+		int objectiveDimesion = problem.objectiveDimesion;
+		int hyperplaneIntercept = 27;
+		int neighbourSize = 2;
+		MOP mop = CHEAMOP.getInstance(popSize, problem , hyperplaneIntercept, neighbourNum);
+		mop.allocateAll(popSize,objectiveDimesion);
+		MopData mopData = new MopData(mop,problem);
 		//MopDataPop mopData = new MopDataPop();
 		System.out.println("map begin ... ");
-		mopData.clear();
+		//mopData.clear();
 		try {
-			mopData.line2mop(paragraph);
+			mopData.str2Mop(paragraph);
 			
-//			running moead algorithm
-			//MOEAD.moead(mopData.mop,1);
-			MOEAD.moead(mopData.mop,innerLoop);
-			
-			weightVector.set("111111111");
-			indivInfo.set(mopData.idealPoint2Line());
-			output.collect(weightVector, indivInfo);
+			//running moead algorithm
+			//chea.chea(mopData.mop,innerLoop);
+			mopData.mop.updatePop(innerLoop);
+
+			keyIndex.set("111111111");
+			valueInd.set(mopData.mopAtr2Str());
+			output.collect(keyIndex, valueInd);
 
 			System.out.println("output collect ~!~");
-			for (int i = 0; i < mopData.mop.chromosomes.size(); i++) {
-				weightVector.set(mopData.weight2Line(i));
+			// key : subProblem 's index
+			// value : str
+			for (int i = 0; i < mopData.mop.sops.size(); i++) {
+				keyIndex.set(String.valueOf(mopData.sops.get(i).sectorialIndex));
 				//System.out.println("key : " + mopData.weight2Line(i) + " , value : " + mopData.mop2Line(i));
-				indivInfo.set(mopData.mop2Line(i));
-				output.collect(weightVector, indivInfo);
+				valueInd.set(mopData.sop2Line(mopData.sops.get(i)));
+				output.collect(keyIndex, valueInd);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }

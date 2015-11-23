@@ -15,9 +15,11 @@ public class IGD {
 	private static String DELIMITER = " ";
 	int igdNum;
 
+	public List<double[]> ps;
 	public List<double[]> igd; 
 	public IGD(int igdNum) {
 		igd = new ArrayList<double[]>(igdNum);
+		ps = new ArrayList<double[]>(igdNum);
 		this.igdNum = igdNum;
 	}
 
@@ -38,6 +40,29 @@ public class IGD {
 			ps.add(d);
 		}
 	}
+	
+	public double calcDistance(double[] w1,double[] w2) {
+		double sum= 0.0;
+		for(int i = 0; i < w1.length; i ++) {
+			sum += Math.pow((w1[i] - w2[i]), 2.0);
+		}
+		return Math.sqrt(sum);
+	}
+	
+    public double calcIGD() {
+        double distanceIGD = 0.0;
+        for (int i  = 0 ; i < ps.size(); i ++) {
+            double minDistance = 1.0e+10;
+            for (int j = 0 ; j < popSize; j ++) {
+            	double d = calcDistance(ps.get(i),sops.get(j).ind.objectiveValue);
+            	if(d < minDistance) minDistance = d;
+            }
+            distanceIGD += minDistance;
+        }
+        distanceIGD /= popSize;
+        return distanceIGD;
+    }
+
 
 	public List<double[]> loadPfront(String filename) throws IOException {
 		FileReader fr = new FileReader(filename);

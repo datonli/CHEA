@@ -166,12 +166,8 @@ public class CHEAMOP extends MOP{
 	}
 
 	//public void excute(int run,List<double> igd) {}
-
-	
-
-    // update Pop part is main to excute the evolustion. Nov 14
-    @Override
-    public void updatePop(int iterations) {
+/*
+	public void updatePop(int iterations) {
 		//initial IGD calc Nov 19
 		IGD igdOper = new IGD(1500);
 		String filename = "/home/laboratory/workspace/TestData/PF_Real/DTLZ1(3).dat";
@@ -195,6 +191,16 @@ public class CHEAMOP extends MOP{
 		try {
 			igdOper.saveIGD(filename);	
 		} catch (IOException e) {
+		}
+	}
+
+*/
+
+    // update Pop part is main to excute the evolustion. Nov 14
+    @Override
+    public void updatePop(int innerTime) {
+		for(int gen = 1 ; gen <= innerTime; gen ++) {
+			evolutionTourSelect2();
 		}
 	}
 
@@ -400,6 +406,7 @@ public class CHEAMOP extends MOP{
 		return rInd;
 	}
 
+	/*
     private double calcIGD() {
         double distanceIGD = 0.0;
         for (int i  = 0 ; i < ps.size(); i ++) {
@@ -413,7 +420,7 @@ public class CHEAMOP extends MOP{
         distanceIGD /= popSize;
         return distanceIGD;
     }
-
+*/
 
     public void write2File(String fileName) throws IOException{
         File file = new File(fileName);

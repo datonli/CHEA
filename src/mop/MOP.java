@@ -44,7 +44,23 @@ public abstract class MOP {
 		subpIndexOnEdge = new ArrayList<Integer>(objectiveDimesion);
 		sops = new ArrayList<SOP>(popSize);
 	}
+
+	public void clear() {
+		sops.clear();
+		subpIndexOnEdge.clear();
+	}
 	
+public void allocateAll(int popSize, int objectiveDimesion) {
+		//anchorPoint = new ArrayList<double[]>(objectiveDimesion);
+		anchorPoint = new double[objectiveDimesion][objectiveDimesion];
+		trueNadirPoint = new double[objectiveDimesion];
+		idealPoint = new double[objectiveDimesion];
+		referencePoint = new double[objectiveDimesion];
+		subpIndexOnEdge = new ArrayList<Integer>(objectiveDimesion);
+		sops = new ArrayList<SOP>(popSize);
+	}
+
+
 	public abstract void initial();
 
 
