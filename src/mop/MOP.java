@@ -13,27 +13,35 @@ import utilities.WrongRemindException;
 public abstract class MOP {
 	static MOP instance;
 
-	List<SOP> sops;
-	List<double[]> ps;
+	public List<SOP> sops;
+	public List<double[]> ps;
 	//MoChromosome oneChild; due to use as offspring
 
-	int popSize;
-	int hyperplaneIntercept;
-	int neighbourNum;
-	double perIntercept; 
+	public int popSize;
+	public int hyperplaneIntercept;
+	public int neighbourNum;
+	public double perIntercept; 
 
 	//List<double[]> anchorPoint;
-	double[][] anchorPoint;
-	double[] trueNadirPoint;
-	double[] idealPoint;
-	double[] referencePoint;
+	public double[][] anchorPoint;
+	public double[] trueNadirPoint;
+	public double[] idealPoint;
+	public double[] referencePoint;
 
 
-	int sizeSubpOnEdge;
-	List<Integer> subpIndexOnEdge;
+	public int sizeSubpOnEdge;
+	public List<Integer> subpIndexOnEdge;
 
-	AProblem problem;
-	int objectiveDimesion;
+	public AProblem problem;
+	public int objectiveDimesion;
+
+	public void allocate() {
+		anchorPoint = new double[objectiveDimesion][objectiveDimesion];
+		trueNadirPoint = new double[objectiveDimesion];
+		idealPoint = new double[objectiveDimesion];
+		referencePoint = new double[objectiveDimesion];
+		subpIndexOnEdge = new ArrayList<Integer>(objectiveDimesion);
+	}
 
 	public void allocateAll() {
 		//anchorPoint = new ArrayList<double[]>(objectiveDimesion);
@@ -50,7 +58,7 @@ public abstract class MOP {
 		subpIndexOnEdge.clear();
 	}
 	
-public void allocateAll(int popSize, int objectiveDimesion) {
+	public void allocateAll(int popSize, int objectiveDimesion) {
 		//anchorPoint = new ArrayList<double[]>(objectiveDimesion);
 		anchorPoint = new double[objectiveDimesion][objectiveDimesion];
 		trueNadirPoint = new double[objectiveDimesion];
@@ -74,14 +82,20 @@ public void allocateAll(int popSize, int objectiveDimesion) {
 		}
 		return Math.sqrt(sum);
 	}
-	
+
+	public static double getHyperVolume(MoChromosome ind,double[] referencePointCalc) {
+        double volume = 1;
+        for(int j = 0 ; j < ind.objectiveDimesion; j ++) volume *= (referencePointCalc[j] - ind.objectiveValue[j]);
+        return volume;	
+	}
+
+	public abstract void updateSopIdealPoint();
 	public abstract void updatePop(int itertions);
 	public abstract void initNeighbour(int neighbourNum);
 	public abstract MoChromosome hyperVolumeCompareSectorialGrid(MoChromosome ind);
 	public abstract boolean updateExtremePoint(MoChromosome ind);
 	public abstract void updatePartition();
 	public abstract List<double[]> population2front(List<SOP> pop);
-	public abstract double getHyperVolume(MoChromosome ind,double[] referencePointCalc);
 	public abstract int tourSelectionHV(List<SOP> sops);
 	public abstract double tourSelectionHVDifference(int p,List<SOP> sops);
 	//public abstract void savePopulation(List<SOP> sops,String fileName);

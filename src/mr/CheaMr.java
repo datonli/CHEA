@@ -107,6 +107,8 @@ public class CheaMr{
 			mopData.clear();
 			mopData.setDelimiter("\n");
 
+			// Nov 25 
+			// record the IGD and caculate
 
 
 			// read the whole file

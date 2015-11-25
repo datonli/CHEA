@@ -11,7 +11,7 @@ class SOP {
 	public int[] vObj;
 	public double[] fixWeight;
 	public int objectiveDimesion;
-	
+	public double[] idealPoint;
 
 	public SOP(MoChromosome ind) {
 		this.ind = ind;
@@ -21,6 +21,7 @@ class SOP {
 		//System.out.println("objectiveDimesion is : " + objectiveDimesion);
 		vObj = new int[objectiveDimesion];
 		fixWeight = new double[objectiveDimesion];
+		idealPoint = new double[objectiveDimesion];
 		neighbour = new ArrayList<Integer>(objectiveDimesion);
 		for(int i = 0 ; i < objectiveDimesion; i ++) fixWeight[i] = 1.0;
 	}

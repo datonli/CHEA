@@ -53,6 +53,10 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 			//chea.chea(mopData.mop,innerLoop);
 			mopData.mop.updatePop(innerLoop);
 
+			// especially update idealPoint for reducer's update.
+			// Nov 23
+			mopData.mop.updateSopIdealPoint();
+
 			keyIndex.set("111111111");
 			valueInd.set(mopData.mopAtr2Str());
 			output.collect(keyIndex, valueInd);

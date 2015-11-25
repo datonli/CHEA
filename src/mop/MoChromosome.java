@@ -9,19 +9,19 @@ public abstract class MoChromosome {
 	public static final double EPS = 1.2e-7;
 
 	private static final long serialVersionUID = 1L;
-	protected static int objectiveDimesion;
-	protected static int genesDimesion;
-	protected double[] genes;
-	protected double[] objectiveValue;
-	protected static int[][] range;
+	public static int objectiveDimesion;
+	public static int genesDimesion;
+	public double[] genes;
+	public double[] objectiveValue;
+	public static int[][] range;
 
 
-	protected double kValue ;
-	protected int hyperplaneIntercept;
-	protected int belongSubproblemIndex;
+	public double kValue ;
+	public int hyperplaneIntercept;
+	public int belongSubproblemIndex;
 
 
-	protected Object clone() throws CloneNotSupportedException {
+	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException(
 				"Chromosome cannot be cloned directly, it must be created from a pool");
 	}

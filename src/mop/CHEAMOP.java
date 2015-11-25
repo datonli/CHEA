@@ -13,7 +13,7 @@ import utilities.StringJoin;
 
 public class CHEAMOP extends MOP{
 
-    private CHEAMOP(int popSize,AProblem problem,int hyperplaneIntercept,int neighbourNum){
+    private CHEAMOP(int popSize,AProblem problem,int hyperplaneIntercept,int neighbourNum) {
         this.popSize = popSize;   
         this.neighbourNum = neighbourNum;
         this.hyperplaneIntercept = hyperplaneIntercept;
@@ -23,10 +23,15 @@ public class CHEAMOP extends MOP{
         allocateAll();
     } 	
 	
-	public static MOP getInstance(int popSize,AProblem problem,int hyperplaneIntercept,int neighbourNum){
+	public static MOP getInstance(int popSize,AProblem problem,int hyperplaneIntercept,int neighbourNum) {
 		if(null == instance)
 			instance = new CHEAMOP(popSize,problem,hyperplaneIntercept,neighbourNum);
 		return instance;
+	}
+
+	public CHEAMOP(int objectiveDimesion) {
+		objectiveDimesion = this.objectiveDimesion;
+		allocate();
 	}
 	
 
@@ -46,7 +51,7 @@ public class CHEAMOP extends MOP{
 	}
 
 	// generate subProblem, and add points to subpIndexOnEdge ... Nov 18
-	private int genSubProblems(int startObjIndex,int maxValueLeft,int[] coordinate,int indexCount){ 
+	private int genSubProblems(int startObjIndex,int maxValueLeft,int[] coordinate,int indexCount) { 
 		if( 0 == startObjIndex ||  0 == maxValueLeft ) {
 			indexCount ++;
 			//System.out.println("indexCount : " + indexCount );
@@ -122,6 +127,16 @@ public class CHEAMOP extends MOP{
 		return bAnchorUpdated;
 	}
 
+	// update sop 's idealPoint for reducer's update ind
+	// Nov 23
+	public void updateSopIdealPoint() {
+		for(int i = 0; i < sops.size(); i ++) {
+			for(int j = 0 ; j < objectiveDimesion; j ++) {
+				sops.get(i).ind.idealPoint[j] = idealPoint[j];
+			}
+		}
+	}
+
 
 
     // tour select two points as parents for reproduction.  Nov 11
@@ -158,12 +173,13 @@ public class CHEAMOP extends MOP{
             if(num != 0) hvDifference = hvDifference/num;
             return hvDifference;
     }
-
+/*
 	public double getHyperVolume(MoChromosome ind,double[] referencePointCalc) {
         double volume = 1;
-        for(int j = 0 ; j < objectiveDimesion; j ++) volume *= (referencePointCalc[j] - ind.objectiveValue[j]);
+        for(int j = 0 ; j < ind.objectiveDimesion; j ++) volume *= (referencePointCalc[j] - ind.objectiveValue[j]);
         return volume;	
 	}
+*/
 
 	//public void excute(int run,List<double> igd) {}
 /*

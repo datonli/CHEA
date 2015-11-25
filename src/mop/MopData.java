@@ -30,7 +30,7 @@ public class MopData implements DataOperator {
 	}
 
 
-	private String sop2Line(SOP subProblem) {
+	public static String sop2Line(SOP subProblem) {
 		List<String> col = new ArrayList<String>();
 		col.add(StringJoin.join(",",subProblem.ind.genes));
 		col.add(StringJoin.join(",",subProblem.ind.objectiveValue));
@@ -42,6 +42,7 @@ public class MopData implements DataOperator {
 		col.add(StringJoin.join(",",subProblem.vObj));
 		col.add(StringJoin.join(",",subProblem.fixWeight));
 		col.add(String.valueOf(subProblem.objectiveDimesion));
+		col.add(StringJoin.join(",",subProblem.idealPoint));
 		return StringJoin.join(" ",col);
 	}
 
@@ -99,15 +100,8 @@ public class MopData implements DataOperator {
 	// subProblem 's str transfer to SOP
 	private void str2Sop(int i,String sopStr) throws WrongRemindException {
 		String[] ss = sopStr.split(" ");
-		if(9 != ss.length) throws WrongRemindException("Wrong str2Sop");
+		if(11 != ss.length) throws WrongRemindException("Wrong str2Sop");
 		MoChromosome ind = new CMoChromosome();
-		/*
-		mop.sops.get(i).ind.genes = StringJoin.decodeDoubleArray(",",ss[0]);
-		mop.sops.get(i).ind.objectiveValue = StringJoin.decodeDoubleArray(",",ss[1]);
-		mop.sops.get(i).ind.kValue = Double.parseDouble(ss[2]);
-		mop.sops.get(i).ind.hyperplaneIntercept = Integer.parseInt(ss[3]);
-		mop.sops.get(i).ind.belongSubproblemIndex = Integer.parseInt(ss[4]);
-		*/
 		ind.genes = StringJoin.decodeDoubleArray(",",ss[0]);
 		ind.objectiveValue = StringJoin.decodeDoubleArray(",",ss[1]);
 		ind.kValue = Double.parseDouble(ss[2]);
@@ -119,7 +113,32 @@ public class MopData implements DataOperator {
 		mop.sops.get(i).vObj = StringJoin.decodeIntArray(",",ss[7]);
 		mop.sops.get(i).fixWeight = StringJoin.decodeDoubleArray(",",ss[8]);
 		mop.sops.get(i).objectiveDimesion = Integer.parseInt(ss[9]);
+		mop.sops.get(i).idealPoint = Integer.parseInt(ss[10]);
+		mop.sops.add(sop);
 	}
+
+
+	// subProblem 's str transfer to SOP
+	public static SOP str2Sop(String sopStr) throws WrongRemindException {
+		String[] ss = sopStr.split(" ");
+		if(11 != ss.length) throws WrongRemindException("Wrong str2Sop");
+		MoChromosome ind = new CMoChromosome();
+		ind.genes = StringJoin.decodeDoubleArray(",",ss[0]);
+		ind.objectiveValue = StringJoin.decodeDoubleArray(",",ss[1]);
+		ind.kValue = Double.parseDouble(ss[2]);
+		ind.hyperplaneIntercept = Integer.parseInt(ss[3]);
+		ind.belongSubproblemIndex = Integer.parseInt(ss[4]);
+		SOP sop = new SOP(ind);
+		sop.sectorialIndex = Integer.parseInt(ss[5]);
+		sop.neighbour = IntArray2IntegerList(StringJoin.decodeIntArray(",",ss[6]));
+		sop.vObj = StringJoin.decodeIntArray(",",ss[7]);
+		sop.fixWeight = StringJoin.decodeDoubleArray(",",ss[8]);
+		sop.objectiveDimesion = Integer.parseInt(ss[9]);
+		sop.idealPoint = Integer.parseInt(ss[10]);
+		return sop;
+	}
+
+
 
 	// if s[0] == 111111111 after split " ", then is must be MOP's Atr part Nov 22
 	private void str2MopAtr(String str) {
@@ -154,7 +173,7 @@ public class MopData implements DataOperator {
 	public void str2Mop(String popStr) throws WrongRemindException {
 		String[] ss = popStr.split(DELIMITER);
 		for(int i = 0 ; i < ss.length - 1; i ++) {
-			str2Sop(i,ss[i]);
+			mop.sops.add(str2Sop(ss[i]));
 		}
 		String[] s = ss[i].split(" ");
 		if("111111111".equals(s[0])) {
