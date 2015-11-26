@@ -174,7 +174,8 @@ public class MopData implements DataOperator {
 	@Override
 	public void str2Mop(String popStr) throws WrongRemindException {
 		String[] ss = popStr.split(DELIMITER);
-		for(int i = 0 ; i < ss.length - 1; i ++) {
+		// wrong in -1 before . Nov 26
+		for(int i = 0 ; i < ss.length ; i ++) {
 			String[] s = ss[i].split(" ");
 			if("111111111".equals(s[0])) {
 				str2MopAtr(s[1]);
