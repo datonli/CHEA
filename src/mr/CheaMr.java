@@ -9,7 +9,6 @@ import chea.chea;
 import mop.MOP;
 import mop.CHEAMOP;
 import mop.MopData;
-import mop.MopDataPop;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
@@ -54,7 +53,6 @@ public class CheaMr{
 
 		// must have generate the mop's all inds. Nov 22
 		String mopStr = mopData.mop2Str();
-
 
 		HdfsOper hdfsOper = new HdfsOper();
 		hdfsOper.mkdir("chea/");
@@ -116,7 +114,6 @@ public class CheaMr{
 			mopStr = mopData.mop2Str();
 			hdfsOper.rm("chea/chea.txt");
 			hdfsOper.createFile("chea/chea.txt", mopStr, writeTime);
-			mopData.clear();
 		}
 		System.out.println("Running time is : " + (System.currentTimeMillis() - startTime));
 		//for (int i = 0; i < loopTime + 1; i++) {
@@ -125,8 +122,8 @@ public class CheaMr{
 			String line = null;
 			String content = null;
 			List<String> col = new ArrayList<String>();
-			while ((line = br.readLine()) != null && line.split(" ").length > 2) {
-				col.add(StringJoin.join(" ",mopData.line2ObjValue(line)));
+			for(int j = 0 ; j < mopData.mop.sops.size(); j ++) {
+				col.add(StringJoin.join(" ",mopData.mop.sops.get(j).ind.objectiveValue));
 			}
 			content = StringJoin.join("\n", col);
 			//mopData.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/" + i + ".txt",content);

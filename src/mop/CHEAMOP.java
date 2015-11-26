@@ -132,7 +132,7 @@ public class CHEAMOP extends MOP{
 	public void updateSopIdealPoint() {
 		for(int i = 0; i < sops.size(); i ++) {
 			for(int j = 0 ; j < objectiveDimesion; j ++) {
-				sops.get(i).ind.idealPoint[j] = idealPoint[j];
+				sops.get(i).idealPoint[j] = idealPoint[j];
 			}
 		}
 	}

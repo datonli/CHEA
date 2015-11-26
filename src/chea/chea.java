@@ -12,7 +12,7 @@ import problems.DTLZ2;
 
 
 
-class chea {
+public class chea {
 
     public void chea(MOP mop, int iterations) {
 		int innerTime = 1;
@@ -30,7 +30,7 @@ class chea {
 			// Nov 21
 			double[] genDisIGD = new double[2];
 			genDisIGD[0] = gen;
-			genDisIGD[1] = igdOper.calcIGD();
+			genDisIGD[1] = igdOper.calcIGD(mop.sops);
 			igdOper.igd.add(genDisIGD);
 
 			// add IGD value into a datastruct Nov 19

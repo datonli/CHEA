@@ -5,15 +5,14 @@ import java.io.IOException;
 import chea.chea;
 
 import mop.MopData;
-import mop.MopDataPop;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
 import mop.MOP;
+import mop.SOP;
 import mop.CHEAMOP;
 
 import problems.AProblem;
-import problems.ZDT1;
 import problems.DTLZ1;
 
 import utilities.WrongRemindException;
@@ -39,7 +38,7 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 		AProblem problem = DTLZ1.getInstance();
 		int objectiveDimesion = problem.objectiveDimesion;
 		int hyperplaneIntercept = 27;
-		int neighbourSize = 2;
+		int neighbourNum = 2;
 		MOP mop = CHEAMOP.getInstance(popSize, problem , hyperplaneIntercept, neighbourNum);
 		mop.allocateAll(popSize,objectiveDimesion);
 		MopData mopData = new MopData(mop,problem);
@@ -65,9 +64,9 @@ public class MapClass extends MapReduceBase implements Mapper<Object, Text, Text
 			// key : subProblem 's index
 			// value : str
 			for (int i = 0; i < mopData.mop.sops.size(); i++) {
-				keyIndex.set(String.valueOf(mopData.sops.get(i).sectorialIndex));
+				keyIndex.set(String.valueOf(mopData.mop.sops.get(i).sectorialIndex));
 				//System.out.println("key : " + mopData.weight2Line(i) + " , value : " + mopData.mop2Line(i));
-				valueInd.set(mopData.sop2Line(mopData.sops.get(i)));
+				valueInd.set(mopData.sop2Line(mopData.mop.sops.get(i)));
 				output.collect(keyIndex, valueInd);
 			}
 		} catch (Exception e) {

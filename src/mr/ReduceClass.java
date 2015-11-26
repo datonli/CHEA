@@ -8,7 +8,16 @@ import java.util.Iterator;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 
+import mop.MOP;
+import mop.SOP;
+import mop.CHEAMOP;
+import mop.MopData;
+
+import problems.AProblem;
+import problems.DTLZ1;
+
 import utilities.StringJoin;
+import utilities.WrongRemindException;
 
 public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, NullWritable, Text> {
 	private Text result = new Text();
@@ -17,8 +26,8 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 			throws IOException {
 		AProblem problem = DTLZ1.getInstance();
 		objectiveDimesion = problem.objectiveDimesion;
-		//MOP mop = new CHEAMOP(problem.objectiveDimesion);
-		MOP mop;
+		MOP mop = new CHEAMOP(problem.objectiveDimesion);
+		//MOP mop;
 		String value = null;
 		String tmp = null;
 		double[] idealPoint = new double[objectiveDimesion];
@@ -30,19 +39,32 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 			tmp = values.next().toString();
 			if (!"111111111".equals(key.toString())) {
 				// update the mop's subProblem Nov 23
-				SOP tmpSop = MapData.str2Sop(tmp);
-				for(int i = 0 ; i < objectiveDimesion; i ++) {
-					if(tmpSop.idealPoint[i] < idealPoint[i]) idealPoint[i] = tmpSop.idealPoint[i];
+				try {
+					SOP tmpSop = MopData.str2Sop(tmp); 
+				
+					for(int i = 0 ; i < objectiveDimesion; i ++) {
+						if(tmpSop.idealPoint[i] < idealPoint[i]) idealPoint[i] = tmpSop.idealPoint[i];
+					}
+					sops.add(tmpSop);
+				} catch (WrongRemindException e) {
+				
 				}
-				sops.add(tmpSop);
 			} else {
 				// update the mop's atr Nov 23
 				if(0 != cnt) {
 					System.out.println("tmp is : " + tmp);
-					mop = str2MopAtr(tmp);
+					try {
+						mop = str2MopAtr(tmp);
+					} catch (WrongRemindException e) {
+					
+					}
 				} else {
-					MOP mopTmp = str2MopAtr(tmp);
-					mop = compareAtr(mop,mopTmp);	
+					try {
+						MOP mopTmp = str2MopAtr(tmp);
+						mop = compareAtr(mop,mopTmp);	
+					} catch (WrongRemindException e) {
+					
+					}
 				}
 				flag = true;
 				cnt ++;
@@ -70,7 +92,7 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
         boolean bTrueNadirUpdated = false;
         boolean bIdealUpdated = false;
         for(int j = 0; j < objectiveDimesion; j ++) {
-            if(m1.anchorPoint[j][j] > m2anchorPoint[j][j]) {
+            if(m1.anchorPoint[j][j] > m2.anchorPoint[j][j]) {
                 m1.anchorPoint[j][j] = m2.anchorPoint[j][j];
                 bAnchorUpdated = true;
             }
@@ -82,13 +104,14 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 				m1.idealPoint[j] = m2.idealPoint[j];
 				bIdealUpdated = true;
 			}
-            if(bAnchorUpdatedItem || bTrueNadirUpdated || bIdealUpdated) {
+            if(bAnchorUpdated || bTrueNadirUpdated || bIdealUpdated) {
                 m1.referencePoint[j] = m1.trueNadirPoint[j] + 1e3 * (m1.trueNadirPoint[j] - m1.idealPoint[j]);
-                bAnchorUpdatedItem = false;
+                bAnchorUpdated = false;
                 bTrueNadirUpdated = false;
 				bIdealUpdated = false;
             }
         }
+		return m1;
 	}
 
 	public SOP compareSops(SOP s1,SOP s2,double[] idealPoint) {
@@ -100,8 +123,8 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 		for(int i = 0 ; i < objectiveDimesion; i ++) {
 			refCal[i] = (idealPoint[i] + k * (1/hyperplaneIntercept) * ( s1.vObj[i] + s1.fixWeight[i]));
 		}
-		c1 = MOP.getHyperVolume(s1.ind,refCal);
-		c2 = MOP.getHyperVolume(s2.ind,refCal);
+		double c1 = MOP.getHyperVolume(s1.ind,refCal);
+		double c2 = MOP.getHyperVolume(s2.ind,refCal);
 		if(c1 > c2) { 
 			s1.ind = s2.ind;
 		}
@@ -110,10 +133,10 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 	}
 
 
-    private MOP str2MopAtr(String str) {
+    private MOP str2MopAtr(String str) throws WrongRemindException {
 		MOP mop = new CHEAMOP(objectiveDimesion);
         String[] ss = str.split("_");
-        if(11 != ss.length) throws WrongRemindException("Wrong str2MopAtr");
+        if(11 != ss.length) throw new WrongRemindException("Wrong str2MopAtr");
         mop.popSize = Integer.parseInt(ss[0]);
         mop.hyperplaneIntercept = Integer.parseInt(ss[1]);
         mop.neighbourNum = Integer.parseInt(ss[2]);
@@ -122,7 +145,7 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
         int c = 0;
         String[] anchorPointR = ss[4].split("#");
         r = anchorPointR.length;
-        c = anchorPointR[0].split(",");
+        c = anchorPointR[0].split(",").length;
         double[][] a = new double[r][c];
         for(int i = 0 ; i < r; i ++) {
             String[] ap = anchorPointR[i].split(",");
@@ -131,11 +154,11 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
             }
         }
         mop.anchorPoint = a;
-        mop.trueNadirPoint = StringJoin.join("#",ss[5]);
-        mop.idealPoint = StringJoin.join("#",ss[6]);
-        mop.referencePoint = StringJoin.join("#",ss[7]);
+        mop.trueNadirPoint = StringJoin.decodeDoubleArray("#",ss[5]);
+        mop.idealPoint = StringJoin.decodeDoubleArray("#",ss[6]);
+        mop.referencePoint = StringJoin.decodeDoubleArray("#",ss[7]);
         mop.sizeSubpOnEdge = Integer.parseInt(ss[8]);
-        mop.subpIndexOnEdge = IntArray2IntegerList(StringJoin.decodeIntArray("#",ss[9]));
+        mop.subpIndexOnEdge = MopData.IntArray2IntegerList(StringJoin.decodeIntArray("#",ss[9]));
         mop.objectiveDimesion = Integer.parseInt(ss[10]);
 		return mop;
     }
@@ -155,7 +178,7 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
         col.add(StringJoin.join("#",mop.idealPoint));
         col.add(StringJoin.join("#",mop.referencePoint));
         col.add(String.valueOf(mop.sizeSubpOnEdge));
-        col.add(StringJoin.join("#",IntegerList2IntArray(mop.subpIndexOnEdge)));
+        col.add(StringJoin.join("#",MopData.IntegerList2IntArray(mop.subpIndexOnEdge)));
         col.add(String.valueOf(mop.objectiveDimesion));
         return StringJoin.join("_",col);
     }

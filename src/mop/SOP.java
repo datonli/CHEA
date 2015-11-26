@@ -3,7 +3,7 @@ package mop;
 import java.util.List;
 import java.util.ArrayList;
 
-class SOP {
+public class SOP {
 	public MoChromosome ind ;
 	public int sectorialIndex;
 	public List<Integer> neighbour;

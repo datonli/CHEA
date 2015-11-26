@@ -39,6 +39,7 @@ public class IGD {
 			}
 			ps.add(d);
 		}
+		return ps;
 	}
 	
 	public double calcDistance(double[] w1,double[] w2) {
@@ -49,17 +50,17 @@ public class IGD {
 		return Math.sqrt(sum);
 	}
 	
-    public double calcIGD() {
+    public double calcIGD(List<SOP> sops) {
         double distanceIGD = 0.0;
         for (int i  = 0 ; i < ps.size(); i ++) {
             double minDistance = 1.0e+10;
-            for (int j = 0 ; j < popSize; j ++) {
+            for (int j = 0 ; j < sops.size(); j ++) {
             	double d = calcDistance(ps.get(i),sops.get(j).ind.objectiveValue);
             	if(d < minDistance) minDistance = d;
             }
             distanceIGD += minDistance;
         }
-        distanceIGD /= popSize;
+        distanceIGD /= sops.size();
         return distanceIGD;
     }
 
