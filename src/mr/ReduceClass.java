@@ -37,6 +37,7 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 		int cnt = 0 ;
 		while(values.hasNext()) {
 			tmp = values.next().toString();
+			System.out.println(tmp);
 			if (!"111111111".equals(key.toString())) {
 				// update the mop's subProblem Nov 23
 				try {
@@ -51,7 +52,7 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 				}
 			} else {
 				// update the mop's atr Nov 23
-				if(0 != cnt) {
+				if(0 == cnt) {
 					System.out.println("tmp is : " + tmp);
 					try {
 						mop = str2MopAtr(tmp);
@@ -114,23 +115,44 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
 		return m1;
 	}
 
-	public SOP compareSops(SOP s1,SOP s2,double[] idealPoint) {
-		int objectiveDimesion = s1.ind.objectiveDimesion;
-		int hyperplaneIntercept = s1.ind.hyperplaneIntercept;
-		double[] refCal = new double[objectiveDimesion];
-		s1.ind.calKVal(idealPoint,hyperplaneIntercept);
-		double k = s1.ind.kValue > s2.ind.kValue ? s1.ind.kValue : s2.ind.kValue;
-		for(int i = 0 ; i < objectiveDimesion; i ++) {
-			refCal[i] = (idealPoint[i] + k * (1/hyperplaneIntercept) * ( s1.vObj[i] + s1.fixWeight[i]));
-		}
-		double c1 = MOP.getHyperVolume(s1.ind,refCal);
-		double c2 = MOP.getHyperVolume(s2.ind,refCal);
-		if(c1 > c2) { 
-			s1.ind = s2.ind;
-		}
-		s1.idealPoint = idealPoint;
-		return s1;
-	}
+    public SOP compareSops(SOP s1,SOP s2,double[] idealPoint) {
+        int objectiveDimesion = s1.ind.objectiveDimesion;
+        int hyperplaneIntercept = s1.ind.hyperplaneIntercept;
+        double[] refCal = new double[objectiveDimesion];
+        
+        s1.ind.calKVal(idealPoint,hyperplaneIntercept);
+        s1.ind.objIndex(idealPoint,hyperplaneIntercept);
+        s2.ind.calKVal(idealPoint,hyperplaneIntercept);
+        s2.ind.objIndex(idealPoint,hyperplaneIntercept);
+
+        if(s1.sectorialIndex == s1.ind.belongSubproblemIndex && s2.sectorialIndex == s2.ind.belongSubproblemIndex) {
+            if(s1.ind.kValue > s2.ind.kValue) {
+                for(int i = 0 ; i < objectiveDimesion; i ++) {
+                    refCal[i] = (idealPoint[i] + s1.ind.kValue * (1/hyperplaneIntercept) * ( s1.vObj[i] + 1)) ; //s1.fixWeight[i]));
+                }
+            } else {
+                for(int i = 0 ; i < objectiveDimesion; i ++) {
+                    refCal[i] = (idealPoint[i] + s2.ind.kValue * (1/hyperplaneIntercept) * ( s2.vObj[i] + 1)) ; //s1.fixWeight[i]));
+                }
+            }
+            double c1 = MOP.getHyperVolume(s1.ind,refCal);
+            double c2 = MOP.getHyperVolume(s2.ind,refCal);
+            if(c1 > c2) {
+                s2.ind.copyTo(s1.ind);
+            }
+            for(int i = 0; i < idealPoint.length; i ++) s1.idealPoint[i] = idealPoint[i];
+            return s1;
+        } else if(s1.sectorialIndex == s1.ind.belongSubproblemIndex && s2.sectorialIndex != s2.ind.belongSubproblemIndex) {
+            for(int i = 0; i < idealPoint.length; i ++) s1.idealPoint[i] = idealPoint[i];
+            return s1;
+        } else if(s1.sectorialIndex != s1.ind.belongSubproblemIndex && s2.sectorialIndex == s2.ind.belongSubproblemIndex) {
+            for(int i = 0; i < idealPoint.length; i ++) s2.idealPoint[i] = idealPoint[i];
+            return s2;
+        } else {
+            for(int i = 0; i < idealPoint.length; i ++) s1.idealPoint[i] = idealPoint[i];
+            return s1;
+        }
+    }
 
 
     private MOP str2MopAtr(String str) throws WrongRemindException {
@@ -182,4 +204,5 @@ public class ReduceClass extends MapReduceBase implements Reducer<Text, Text, Nu
         col.add(String.valueOf(mop.objectiveDimesion));
         return StringJoin.join("_",col);
     }
+
 }

@@ -10,6 +10,7 @@ import problems.AProblem;
 import problems.DTLZ1;
 import problems.DTLZ2;
 
+import utilities.StringJoin;
 
 
 public class chea {
@@ -44,9 +45,11 @@ public class chea {
 
 
 		public static void main(String[] args) throws IOException{
-			int popSize = 406;
-			int hyperplaneIntercept = 27;
-			int iterations = 800;
+			int popSize = 105;
+			int hyperplaneIntercept = 13;
+			//int popSize = 406;
+			//int hyperplaneIntercept = 27;
+			int iterations = 8000;
 			int neighbourNum = 2;		
 			AProblem problem = DTLZ1.getInstance();
 			MOP mop = CHEAMOP.getInstance(popSize,problem,hyperplaneIntercept,neighbourNum);
@@ -54,12 +57,25 @@ public class chea {
 	        String filename = "/home/laboratory/workspace/moead_parallel/experiments/chea_init.txt";
 	        mop.write2File(filename);
 			for(int i = 0 ; i < iterations; i ++) {
-				System.out.println("The " + i + "th iteration !!");
+				//System.out.println("The " + i + "th iteration !!");
 				mop.updatePop(1);
 			}
+	
+			for(int i = 0; i < mop.sops.size(); i ++) {
+				System.out.println(mop.sops.get(i).sectorialIndex + " : " + mop.sops.get(i).ind.belongSubproblemIndex + ", objvalue is : " + StringJoin.join(" ",mop.sops.get(i).ind.objectiveValue));
+			}
+
+			
+			System.out.println("idealPoint is : " + StringJoin.join(" ",mop.idealPoint));
+			System.out.println("trueXXX is : " + StringJoin.join(" ",mop.trueNadirPoint));
 	        filename = "/home/laboratory/workspace/moead_parallel/experiments/chea.txt";
 	        mop.write2File(filename);
-		    System.out.println("done!");
+		    filename = "/home/laboratory/workspace/moead_parallel/experiments/chea_all.txt";
+			System.out.println(filename);
+	        mop.writeAll2File(filename);
+	    	System.out.println("done!");
 		}
+
+
 }
 
