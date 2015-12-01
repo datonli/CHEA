@@ -35,9 +35,9 @@ public class CheaMr{
 		int popSize = 406;
 		int hyperplaneIntercept = 27;
 		int neighbourNum = 2;
-		int iterations = 400;
-		int writeTime = 1;
-		int innerLoop = 1;
+		int iterations = 1600;
+		int writeTime = 4;
+		int innerLoop = 400;
 		int loopTime = iterations / (writeTime * innerLoop);
 		AProblem problem = DTLZ1.getInstance();
 		MOP mop = CHEAMOP.getInstance(popSize, problem , hyperplaneIntercept, neighbourNum);
@@ -73,9 +73,6 @@ public class CheaMr{
 
 			jobConf.setJarByClass(CheaMr.class);
 			MapClass.setInnerLoop(innerLoop);
-			//MyFileInputFormat.setReadFileTime(jobConf,writeTime);
-			//jobConf.setInputFormat(MyFileInputFormat.class);
-			//NLineInputFormat.setNumLinesPerSplit(jobConf,1);
 			jobConf.setInputFormat(NLineInputFormat.class);
 			jobConf.setOutputFormat(TextOutputFormat.class);
 			jobConf.setMapperClass(MapClass.class);
@@ -85,11 +82,6 @@ public class CheaMr{
 
 			FileInputFormat.addInputPath(jobConf,new Path(
 					"hdfs://master:8020/user/root/chea/chea.txt"));
-			/*
-			FileInputFormat.addInputPath(jobConf,new Path(
-					"hdfs://master:8020/user/root/chea/"
-					+ i + "/part-r-00000"));
-			*/
 			FileOutputFormat.setOutputPath(jobConf,new Path(
 					"hdfs://master:8020/user/root/chea/"
 					+ (i+1)));
@@ -105,7 +97,6 @@ public class CheaMr{
 			// Nov 25 
 			// record the IGD and caculate
 
-
 			// read the whole file
 			mopData.setDelimiter("\n");
 			mopData.str2Mop(hdfsOper.readWholeFile("chea/"+(i+1)+"/part-00000"));		
@@ -116,7 +107,7 @@ public class CheaMr{
 		}
 		System.out.println("Running time is : " + (System.currentTimeMillis() - startTime));
 
-		mopData.mop.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/mr_chea.txt");
+		mopData.mop.write2File("/home/laboratory/workspace/moead_parallel/experiments/parallel/mr_chea.txt");
 		
 
 		//for (int i = 0; i < loopTime + 1; i++) {
@@ -131,7 +122,7 @@ public class CheaMr{
 			content = StringJoin.join("\n", col);
 			//mopData.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/" + i + ".txt",content);
 			//if(i == loopTime)
-				mopData.write2File("/home/laboratory/workspace/chea_parallel/experiments/parallel/mr_chea2.txt",content);
+				mopData.write2File("/home/laboratory/workspace/moead_parallel/experiments/parallel/mr_chea2.txt",content);
 //			hdfsOper.createFile("/chea/" + i + "/objectiveValue.txt", content);
 		//}
 		System.out.println("LoopTime is : " + loopTime + "\n");

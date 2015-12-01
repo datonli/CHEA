@@ -34,7 +34,7 @@ public class hdfs2chea {
         List<String> col = new ArrayList<String>();
 		mopData.clear();
         mopData.setDelimiter("\n");
-        mopData.str2Mop(hdfsOper.readWholeFile("chea/200/part-00000"));
+        mopData.str2Mop(hdfsOper.readWholeFile("chea/400/part-00000"));
         for(int j = 0 ; j < mopData.mop.sops.size(); j ++) {
            col.add(StringJoin.join(" ",mopData.mop.sops.get(j).ind.objectiveValue));
         }
